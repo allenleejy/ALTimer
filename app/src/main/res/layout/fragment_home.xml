@@ -16,13 +16,13 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:elevation="8dp"
-        app:tabIconTint="@color/tab_icon_selector"
-        app:tabBackground="@color/lightyellow"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:tabBackground="@color/lightyellow"
+        app:tabIconTint="@color/tab_icon_selector" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

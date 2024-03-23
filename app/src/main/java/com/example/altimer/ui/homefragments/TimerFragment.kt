@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -41,6 +42,8 @@ class TimerFragment : Fragment() {
     private lateinit var scrambleImage: ImageView
     private lateinit var newScramble: ImageButton
     private lateinit var timerText: TextView
+    private lateinit var plusTwo: Button
+    private lateinit var dnf: ImageButton
 
     private val cube = ThreeByThreeCubePuzzle()
     private lateinit var generatedScramble : String
@@ -52,6 +55,8 @@ class TimerFragment : Fragment() {
     private var centerX = 0
     private var centerY = 0
     private var isExpanded = false
+
+    private var penaltyShown = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -69,6 +74,9 @@ class TimerFragment : Fragment() {
         scrambleImage = binding.scrambleimage
         newScramble = binding.newscramble
         timerText = binding.timer
+
+        plusTwo = binding.plustwo
+        dnf = binding.dnf
 
         centerX = resources.displayMetrics.widthPixels / 2
         centerY = resources.displayMetrics.heightPixels / 2
@@ -139,6 +147,17 @@ class TimerFragment : Fragment() {
                 zoomIn()
             }
         }
+        plusTwo.setOnClickListener {
+            timerText.text = formatTime(timerText.text.toString().dropLast(3).toLong() + 2, timerText.text.toString().takeLast(2).toLong())
+            plusTwo.visibility = View.INVISIBLE
+        }
+        dnf.setOnClickListener {
+            timerText.text = "DNF"
+            //timerText.textSize = 2f
+            dnf.visibility = View.INVISIBLE
+            plusTwo.visibility = View.INVISIBLE
+            penaltyShown = false
+        }
 
         return root
     }
@@ -206,14 +225,66 @@ class TimerFragment : Fragment() {
         mainActivity.fadeToolbarAndTabLayout(fadeOut)
 
         (parentFragment as? HomeFragment)?.fadeTabLayout(fadeOut)
+        if (!penaltyShown && fadeOut) {
+            val viewsToFade = listOf(
+                scramble,
+                scrambleImage,
+                newScramble,
+                binding.fivelayout,
+                binding.twelvelayout,
+                binding.meanlayout,
+                binding.countlayout
+            )
 
-        val viewsToFade = listOf(scramble, scrambleImage, newScramble, binding.fivelayout, binding.twelvelayout, binding.meanlayout, binding.countlayout)
+            for (view in viewsToFade) {
+                val alphaAnimation = AlphaAnimation(alphaStart, alphaEnd)
+                alphaAnimation.duration = duration
+                view.startAnimation(alphaAnimation)
+                view.visibility = if (fadeOut) View.INVISIBLE else View.VISIBLE
+            }
+        }
+        else if (!penaltyShown && !fadeOut) {
+            Log.d("test", "it should be working")
+            val viewsToFade = listOf(
+                scramble,
+                scrambleImage,
+                newScramble,
+                binding.fivelayout,
+                binding.twelvelayout,
+                binding.meanlayout,
+                binding.countlayout,
+                binding.dnf,
+                binding.plustwo
+            )
 
-        for (view in viewsToFade) {
-            val alphaAnimation = AlphaAnimation(alphaStart, alphaEnd)
-            alphaAnimation.duration = duration
-            view.startAnimation(alphaAnimation)
-            view.visibility = if (fadeOut) View.INVISIBLE else View.VISIBLE
+            for (view in viewsToFade) {
+                val alphaAnimation = AlphaAnimation(alphaStart, alphaEnd)
+                alphaAnimation.duration = duration
+                view.startAnimation(alphaAnimation)
+                view.visibility = View.VISIBLE
+            }
+            penaltyShown = true
+        }
+        else {
+            val viewsToFade = listOf(
+                scramble,
+                scrambleImage,
+                newScramble,
+                binding.fivelayout,
+                binding.twelvelayout,
+                binding.meanlayout,
+                binding.countlayout,
+                binding.plustwo,
+                binding.dnf
+            )
+
+            for (view in viewsToFade) {
+                val alphaAnimation = AlphaAnimation(alphaStart, alphaEnd)
+                alphaAnimation.duration = duration
+                view.startAnimation(alphaAnimation)
+                view.visibility = if (fadeOut) View.INVISIBLE else View.VISIBLE
+            }
+            penaltyShown = true
         }
     }
     private fun zoomIn() {
