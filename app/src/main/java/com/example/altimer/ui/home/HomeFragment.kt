@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -56,5 +57,14 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+    fun fadeTabLayout(fadeOut: Boolean) {
+        val duration = 300L // Set your desired duration here
+        val alphaEnd = if (fadeOut) 0.0f else 1.0f
+
+        tabLayout.animate()
+            .alpha(alphaEnd)
+            .setDuration(duration)
+            .start()
     }
 }

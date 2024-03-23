@@ -7,16 +7,154 @@
     tools:context=".ui.homefragments.TimerFragment">
 
     <TextView
-        android:id="@+id/text_timer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
+        android:id="@+id/scramble"
+        android:layout_width="333dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="U2 L2 U F2 D2 R' L2 B L F2 U2 B2 R' B2 L B2 D2"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="60sp"
+        app:layout_constraintBottom_toTopOf="@id/fivelayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scramble"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <FrameLayout
+        android:id="@+id/fivelayout"
+        android:layout_width="95dp"
+        android:layout_height="71dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@id/meanlayout"
+        app:layout_constraintEnd_toStartOf="@id/twelvelayout">
+
+        <ImageView
+            android:id="@+id/fiveback"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/time_rectangles"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/averagefive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="A05"
+            android:textSize="20sp" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/meanlayout"
+        android:layout_width="95dp"
+        android:layout_height="71dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/countlayout">
+
+        <ImageView
+            android:id="@+id/meanback"
+            android:layout_width="95dp"
+            android:layout_height="71dp"
+            android:background="@drawable/time_rectangles"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/mean"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="MEAN"
+            android:textSize="20sp" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/twelvelayout"
+        android:layout_width="95dp"
+        android:layout_height="71dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@id/countlayout"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/twelveback"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/time_rectangles"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/averagetwelve"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="AO12"
+            android:textSize="20sp" />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/countlayout"
+        android:layout_width="95dp"
+        android:layout_height="71dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/countback"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/time_rectangles"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="COUNT"
+            android:textSize="20sp" />
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/scrambleimage"
+        android:layout_width="161dp"
+        android:layout_height="152dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/meanlayout"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:src="@tools:sample/avatars" />
+
+    <ImageButton
+        android:id="@+id/newscramble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-20dp"
+        android:layout_marginEnd="10dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/cacheicon"
+        app:layout_constraintEnd_toEndOf="@id/scramble"
+        app:layout_constraintTop_toBottomOf="@+id/scramble" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
