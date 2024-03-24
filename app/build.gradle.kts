@@ -52,6 +52,7 @@ dependencies {
     implementation("org.worldcubeassociation.tnoodle:lib-scrambles:0.19.2")
     implementation("com.caverock:androidsvg:1.2.1")
     implementation("com.google.code.gson:gson:2.10")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

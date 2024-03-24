@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -15,7 +13,7 @@ import com.example.altimer.databinding.FragmentHomeBinding
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(){
 
     private var _binding: FragmentHomeBinding? = null
 
@@ -24,9 +22,6 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
-    private lateinit var button1: Button
-    private lateinit var button2: Button
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -67,4 +62,5 @@ class HomeFragment : Fragment() {
             .setDuration(duration)
             .start()
     }
+
 }

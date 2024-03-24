@@ -11,11 +11,12 @@ class HomeViewPagerAdapter(fragmentActivity: HomeFragment) : FragmentStateAdapte
     override fun getItemCount(): Int = 2 // Number of fragments
 
     override fun createFragment(position: Int): Fragment {
-        // Return your fragments based on the position
         return when (position) {
             0 -> TimerFragment()
             1 -> TimesFragment()
             else -> throw IllegalArgumentException("Invalid position: $position")
         }
     }
+
 }
+

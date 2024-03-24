@@ -21,21 +21,18 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import com.caverock.androidsvg.SVG
 import com.example.altimer.MainActivity
 import com.example.altimer.R
+import com.example.altimer.SharedTimesModel
 import com.example.altimer.Solve
 import com.example.altimer.SolveManager
-import com.example.altimer.databinding.FragmentGalleryBinding
 import com.example.altimer.databinding.FragmentTimerBinding
 import com.example.altimer.ui.gallery.GalleryViewModel
 import com.example.altimer.ui.home.HomeFragment
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.worldcubeassociation.tnoodle.puzzle.ThreeByThreeCubePuzzle
 
-class TimerFragment : Fragment() {
+class TimerFragment() : Fragment() {
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
@@ -48,8 +45,8 @@ class TimerFragment : Fragment() {
     private lateinit var dnf: ImageButton
 
     private val cube = ThreeByThreeCubePuzzle()
-    private lateinit var generatedScramble : String
-    private lateinit var cubeImage : String
+    private lateinit var generatedScramble: String
+    private lateinit var cubeImage: String
 
     private var startTime: Long = 0
     private var running: Boolean = false
@@ -60,10 +57,9 @@ class TimerFragment : Fragment() {
 
     private var penaltyShown = false
 
-    private lateinit var currentSolveList : List<Solve>
-    private var currentSolve : Solve = Solve("", 0f, "", "")
+    private var currentSolve: Solve = Solve("", 0f, "", "")
 
-
+    private lateinit var sharedViewModel : SharedTimesModel
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -89,8 +85,10 @@ class TimerFragment : Fragment() {
         centerY = resources.displayMetrics.heightPixels / 2
 
         SolveManager.clearSolves(requireContext())
+        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedTimesModel::class.java)
 
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
         val textView = binding.timer
 
         val builder = SpannableStringBuilder()
@@ -123,16 +121,21 @@ class TimerFragment : Fragment() {
                             generateScramble()
                             fadeViews(false)
                             currentSolve.time = timerText.text.toString().toFloat()
+                            Log.d("testing", "solve 1?")
                             SolveManager.addSolve(requireContext(), currentSolve)
+                            Log.d("testing", SolveManager.getSolves(requireContext()).toString())
+                            updateFirst()
+
+
                         }
                     }
                     true
                 }
+
                 MotionEvent.ACTION_UP -> {
                     if (isExpanded) {
                         zoomOut()
-                    }
-                    else {
+                    } else {
                         if (running) {
                             startTime = System.currentTimeMillis()
                             timerText.post(timerRunnable)
@@ -145,6 +148,7 @@ class TimerFragment : Fragment() {
                     }
                     true
                 }
+
                 else -> false
             }
         }
@@ -152,16 +156,19 @@ class TimerFragment : Fragment() {
         scrambleImage.setOnClickListener {
             if (isExpanded) {
                 zoomOut()
-            }
-            else {
+            } else {
                 zoomIn()
             }
         }
         plusTwo.setOnClickListener {
-            timerText.text = formatTime(timerText.text.toString().dropLast(3).toLong() + 2, timerText.text.toString().takeLast(2).toLong())
+            timerText.text = formatTime(
+                timerText.text.toString().dropLast(3).toLong() + 2,
+                timerText.text.toString().takeLast(2).toLong()
+            )
             currentSolve.time += 2f
             currentSolve.penalty = "+2"
             SolveManager.editLastSolve(requireContext(), currentSolve)
+            updateFirst()
             plusTwo.visibility = View.INVISIBLE
         }
         dnf.setOnClickListener {
@@ -174,6 +181,7 @@ class TimerFragment : Fragment() {
             penaltyShown = false
             currentSolve.penalty = "DNF"
             SolveManager.editLastSolve(requireContext(), currentSolve)
+            updateFirst()
         }
 
         return root
@@ -183,13 +191,22 @@ class TimerFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
     fun generateScramble() {
         generatedScramble = cube.generateScramble()
         scramble.text = generatedScramble
 
-        cubeImage = cube.drawScramble(generatedScramble, cube.parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
-        scrambleImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
+        cubeImage = cube.drawScramble(
+            generatedScramble,
+            cube.parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")
+        ).toString()
+        scrambleImage.setImageDrawable(
+            PictureDrawable(
+                SVG.getFromString(cubeImage).renderToPicture()
+            )
+        )
     }
+
     private val timerRunnable = object : Runnable {
         private var lastElapsedTime: Long = 0
 
@@ -233,6 +250,7 @@ class TimerFragment : Fragment() {
 
         return builder
     }
+
     private fun fadeViews(fadeOut: Boolean) {
         val duration = 300L // Set your desired duration here
         val alphaStart = if (fadeOut) 1.0f else 0.0f
@@ -259,8 +277,7 @@ class TimerFragment : Fragment() {
                 view.startAnimation(alphaAnimation)
                 view.visibility = if (fadeOut) View.INVISIBLE else View.VISIBLE
             }
-        }
-        else if (!penaltyShown && !fadeOut) {
+        } else if (!penaltyShown && !fadeOut) {
             val viewsToFade = listOf(
                 scramble,
                 scrambleImage,
@@ -280,8 +297,7 @@ class TimerFragment : Fragment() {
                 view.visibility = View.VISIBLE
             }
             penaltyShown = true
-        }
-        else {
+        } else {
             val viewsToFade = listOf(
                 scramble,
                 scrambleImage,
@@ -303,6 +319,7 @@ class TimerFragment : Fragment() {
             penaltyShown = true
         }
     }
+
     private fun zoomIn() {
         val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.zoom_in)
         animation.duration = 200
@@ -321,6 +338,10 @@ class TimerFragment : Fragment() {
             .setDuration(animation.duration)
             .setInterpolator(animation.interpolator)
             .start()
+        binding.plustwo.animate().alpha(0.0f).setInterpolator(animation.interpolator)
+            .setDuration(animation.duration).start()
+        binding.dnf.animate().alpha(0.0f).setInterpolator(animation.interpolator)
+            .setDuration(animation.duration).start()
         isExpanded = true
     }
 
@@ -340,8 +361,16 @@ class TimerFragment : Fragment() {
             .setDuration(animation.duration)
             .setInterpolator(animation.interpolator)
             .start()
+        binding.plustwo.animate().alpha(1.0f).setInterpolator(animation.interpolator)
+            .setDuration(animation.duration).start()
+        binding.dnf.animate().alpha(1.0f).setInterpolator(animation.interpolator)
+            .setDuration(animation.duration).start()
 
         isExpanded = false
 
     }
+    private fun updateFirst() {
+        sharedViewModel.timesUpdateListener?.updateTimes()
+    }
+
 }
