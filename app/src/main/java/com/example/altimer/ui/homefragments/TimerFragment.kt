@@ -1,7 +1,10 @@
 package com.example.altimer.ui.homefragments
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.graphics.drawable.PictureDrawable
+import android.opengl.Visibility
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -84,6 +87,8 @@ class TimerFragment() : Fragment() {
         centerX = resources.displayMetrics.widthPixels / 2
         centerY = resources.displayMetrics.heightPixels / 2
 
+        initialiseStats()
+
         SolveManager.clearSolves(requireContext())
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedTimesModel::class.java)
 
@@ -108,12 +113,18 @@ class TimerFragment() : Fragment() {
         newScramble.setOnClickListener {
             generateScramble()
         }
+        var touchStartTime: Long = 0
+
         root.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    touchStartTime = System.currentTimeMillis()
                     if (!isExpanded) {
                         if (!running) {
                             timerRunnable.resetTimer()
+                            binding.plustwo.visibility = View.INVISIBLE
+                            binding.dnf.visibility = View.INVISIBLE
+                            penaltyShown = false
                             running = true
                         } else {
                             running = false
@@ -121,18 +132,18 @@ class TimerFragment() : Fragment() {
                             generateScramble()
                             fadeViews(false)
                             currentSolve.time = timerText.text.toString().toFloat()
-                            Log.d("testing", "solve 1?")
-                            SolveManager.addSolve(requireContext(), currentSolve)
-                            Log.d("testing", SolveManager.getSolves(requireContext()).toString())
+                            if (currentSolve.time != 0f) {
+                                SolveManager.addSolve(requireContext(), currentSolve)
+                            }
+                            updateStats("3x3")
                             updateFirst()
-
-
                         }
                     }
                     true
                 }
 
                 MotionEvent.ACTION_UP -> {
+                    val pressDuration = System.currentTimeMillis() - touchStartTime
                     if (isExpanded) {
                         zoomOut()
                     } else {
@@ -169,6 +180,7 @@ class TimerFragment() : Fragment() {
             currentSolve.penalty = "+2"
             SolveManager.editLastSolve(requireContext(), currentSolve)
             updateFirst()
+            updateStats("3x3")
             plusTwo.visibility = View.INVISIBLE
         }
         dnf.setOnClickListener {
@@ -181,6 +193,7 @@ class TimerFragment() : Fragment() {
             penaltyShown = false
             currentSolve.penalty = "DNF"
             SolveManager.editLastSolve(requireContext(), currentSolve)
+            updateStats("3x3")
             updateFirst()
         }
 
@@ -232,6 +245,7 @@ class TimerFragment() : Fragment() {
 
         fun resetTimer() {
             timerText.text = formatTime(0, 0)
+
         }
     }
 
@@ -289,14 +303,16 @@ class TimerFragment() : Fragment() {
                 binding.dnf,
                 binding.plustwo
             )
-
             for (view in viewsToFade) {
-                val alphaAnimation = AlphaAnimation(alphaStart, alphaEnd)
-                alphaAnimation.duration = duration
-                view.startAnimation(alphaAnimation)
-                view.visibility = View.VISIBLE
+                if (view.visibility == View.INVISIBLE) {
+                    val alphaAnimation = AlphaAnimation(alphaStart, alphaEnd)
+                    alphaAnimation.duration = duration
+                    view.startAnimation(alphaAnimation)
+                    view.visibility = View.VISIBLE
+                    penaltyShown = true
+                }
             }
-            penaltyShown = true
+
         } else {
             val viewsToFade = listOf(
                 scramble,
@@ -311,10 +327,15 @@ class TimerFragment() : Fragment() {
             )
 
             for (view in viewsToFade) {
-                val alphaAnimation = AlphaAnimation(alphaStart, alphaEnd)
-                alphaAnimation.duration = duration
-                view.startAnimation(alphaAnimation)
-                view.visibility = if (fadeOut) View.INVISIBLE else View.VISIBLE
+                if (view.visibility == View.VISIBLE && !fadeOut) {
+                    Log.d("testing", "swipedetected")
+                }
+                else {
+                    val alphaAnimation = AlphaAnimation(alphaStart, alphaEnd)
+                    alphaAnimation.duration = duration
+                    view.startAnimation(alphaAnimation)
+                    view.visibility = if (fadeOut) View.INVISIBLE else View.VISIBLE
+                }
             }
             penaltyShown = true
         }
@@ -338,10 +359,19 @@ class TimerFragment() : Fragment() {
             .setDuration(animation.duration)
             .setInterpolator(animation.interpolator)
             .start()
-        binding.plustwo.animate().alpha(0.0f).setInterpolator(animation.interpolator)
-            .setDuration(animation.duration).start()
-        binding.dnf.animate().alpha(0.0f).setInterpolator(animation.interpolator)
-            .setDuration(animation.duration).start()
+
+        binding.plustwo.animate().alpha(0.0f)
+            .setInterpolator(animation.interpolator)
+            .setDuration(animation.duration)
+            .setListener(object : AnimatorListenerAdapter() {
+            })
+            .start()
+
+        binding.dnf.animate().alpha(0.0f)
+            .setInterpolator(animation.interpolator)
+            .setDuration(animation.duration)
+            .start()
+
         isExpanded = true
     }
 
@@ -363,9 +393,14 @@ class TimerFragment() : Fragment() {
             .start()
         binding.plustwo.animate().alpha(1.0f).setInterpolator(animation.interpolator)
             .setDuration(animation.duration).start()
+        if (penaltyShown) {
+            binding.plustwo.visibility = View.VISIBLE
+        }
         binding.dnf.animate().alpha(1.0f).setInterpolator(animation.interpolator)
             .setDuration(animation.duration).start()
-
+        if (penaltyShown) {
+            binding.dnf.visibility = View.VISIBLE
+        }
         isExpanded = false
 
     }
@@ -373,4 +408,169 @@ class TimerFragment() : Fragment() {
         sharedViewModel.timesUpdateListener?.updateTimes()
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun updateStats(event : String) {
+        val averageFive = binding.averagefive
+        val averageTwelve = binding.averagetwelve
+        val mean = binding.mean
+        val count = binding.count
+        var averageOfFive : Float = 0f
+        var averageOfTwelve : Float = 0f
+        var averageOfAll : Float = 0f
+        val aofivelist = ArrayList<Float>()
+        val aotwelvelist = ArrayList<Float>()
+
+        val solves = SolveManager.getSolves(requireContext())
+        val eventSolves = ArrayList<Solve>()
+
+        for (solve in solves) {
+            if (solve.event == event) {
+                eventSolves.add(solve)
+            }
+        }
+        if (eventSolves.size < 12) {
+            averageTwelve.text = "AO12\n-"
+            if (eventSolves.size < 5) {
+                averageFive.text = "AO5\n-"
+            }
+            else {
+                averageOfFive = 0f
+                var shortest = 0f
+                var longest = 0f
+                for (i in eventSolves.size - 5 until eventSolves.size) {
+                    if (eventSolves.get(i).penalty != "DNF") {
+                        aofivelist.add(eventSolves.get(i).time)
+                        if (shortest == 0f) {
+                            shortest = eventSolves.get(i).time
+                            longest = eventSolves.get(i).time
+                        }
+                        if (eventSolves.get(i).time < shortest) {
+                            shortest = eventSolves.get(i).time
+                        }
+                        if (eventSolves.get(i).time > longest) {
+                            longest = eventSolves.get(i).time
+                        }
+                    }
+                }
+                if (aofivelist.size == 4) {
+                    aofivelist.remove(shortest)
+                    for (time in aofivelist) {
+                        averageOfFive += time
+                    }
+                    averageOfFive /= 3
+                    averageFive.text = "AO5\n" + String.format("%.2f", averageOfFive)
+                }
+                else if (aofivelist.size < 4) {
+                    averageFive.text = "AO5\n-"
+                }
+                else {
+                    aofivelist.remove(shortest)
+                    aofivelist.remove(longest)
+                    for (time in aofivelist) {
+                        averageOfFive += time
+                    }
+                    averageOfFive /= 3
+                    averageFive.text = "AO5\n" + String.format("%.2f", averageOfFive)
+                }
+
+            }
+        }
+        else {
+            averageOfFive = 0f
+            var shortest = 0f
+            var longest = 0f
+            for (i in eventSolves.size - 5 until eventSolves.size) {
+                if (eventSolves.get(i).penalty != "DNF") {
+                    aofivelist.add(eventSolves.get(i).time)
+                    if (shortest == 0f) {
+                        shortest = eventSolves.get(i).time
+                        longest = eventSolves.get(i).time
+                    }
+                    if (eventSolves.get(i).time < shortest) {
+                        shortest = eventSolves.get(i).time
+                    }
+                    if (eventSolves.get(i).time > longest) {
+                        longest = eventSolves.get(i).time
+                    }
+                }
+            }
+            if (aofivelist.size == 4) {
+                aofivelist.remove(shortest)
+                for (time in aofivelist) {
+                    averageOfFive += time
+                }
+                averageOfFive /= 3
+                averageFive.text = "AO5\n" + String.format("%.2f", averageOfFive)
+            }
+            else if (aofivelist.size < 4) {
+                averageFive.text = "AO5\n-"
+            }
+            else {
+                aofivelist.remove(shortest)
+                aofivelist.remove(longest)
+                for (time in aofivelist) {
+                    averageOfFive += time
+                }
+                averageOfFive /= 3
+                averageFive.text = "AO5\n" + String.format("%.2f", averageOfFive)
+            }
+
+            averageOfTwelve = 0f
+            shortest = 0f
+            longest = 0f
+            for (i in eventSolves.size - 12 until eventSolves.size) {
+                if (eventSolves.get(i).penalty != "DNF") {
+                    aotwelvelist.add(eventSolves.get(i).time)
+                    if (shortest == 0f) {
+                        shortest = eventSolves.get(i).time
+                        longest = eventSolves.get(i).time
+                    }
+                    if (eventSolves.get(i).time < shortest) {
+                        shortest = eventSolves.get(i).time
+                    }
+                    if (eventSolves.get(i).time > longest) {
+                        longest = eventSolves.get(i).time
+                    }
+                }
+            }
+            if (aotwelvelist.size == 11) {
+                aotwelvelist.remove(shortest)
+                Log.d("testing", aotwelvelist.toString())
+                for (time in aotwelvelist) {
+                    averageOfTwelve += time
+                }
+                averageOfTwelve /= 10
+                averageTwelve.text = "AO12\n" + String.format("%.2f", averageOfTwelve)
+            }
+            else if (aotwelvelist.size < 11) {
+                averageTwelve.text = "AO12\n-"
+            }
+            else {
+                aotwelvelist.remove(shortest)
+                aotwelvelist.remove(longest)
+                for (time in aotwelvelist) {
+                    averageOfTwelve += time
+                }
+                averageOfTwelve /= 10
+                averageTwelve.text = "AO12\n" + String.format("%.2f", averageOfTwelve)
+            }
+        }
+        count.text = "COUNT\n${eventSolves.size}"
+        averageOfAll = 0f
+        for (solve in eventSolves) {
+            averageOfAll += solve.time
+        }
+        averageOfAll /= eventSolves.size
+        mean.text = "MEAN\n" + String.format("%.2f", averageOfAll)
+    }
+    fun initialiseStats() {
+        val averageFive = binding.averagefive
+        val averageTwelve = binding.averagetwelve
+        val mean = binding.mean
+        val count = binding.count
+        averageFive.text = "AO5\n-"
+        averageTwelve.text = "AO12\n-"
+        mean.text = "MEAN\n-"
+        count.text = "COUNT\n-"
+    }
 }
