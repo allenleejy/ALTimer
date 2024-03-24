@@ -25,6 +25,8 @@ import androidx.navigation.fragment.findNavController
 import com.caverock.androidsvg.SVG
 import com.example.altimer.MainActivity
 import com.example.altimer.R
+import com.example.altimer.Solve
+import com.example.altimer.SolveManager
 import com.example.altimer.databinding.FragmentGalleryBinding
 import com.example.altimer.databinding.FragmentTimerBinding
 import com.example.altimer.ui.gallery.GalleryViewModel
@@ -58,6 +60,11 @@ class TimerFragment : Fragment() {
 
     private var penaltyShown = false
 
+    private lateinit var currentSolveList : List<Solve>
+    private var currentSolve : Solve = Solve("", 0f, "", "")
+
+
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -80,10 +87,8 @@ class TimerFragment : Fragment() {
 
         centerX = resources.displayMetrics.widthPixels / 2
         centerY = resources.displayMetrics.heightPixels / 2
-        val location = IntArray(2)
-        scrambleImage.getLocationOnScreen(location)
-        Log.d("test", "$centerX $centerY ${location[1]}")
 
+        SolveManager.clearSolves(requireContext())
 
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         val textView = binding.timer
@@ -117,6 +122,8 @@ class TimerFragment : Fragment() {
                             timerRunnable.stopTimer()
                             generateScramble()
                             fadeViews(false)
+                            currentSolve.time = timerText.text.toString().toFloat()
+                            SolveManager.addSolve(requireContext(), currentSolve)
                         }
                     }
                     true
@@ -131,6 +138,9 @@ class TimerFragment : Fragment() {
                             timerText.post(timerRunnable)
                             timerRunnable.startTimer()
                             fadeViews(true)
+                            currentSolve.event = "3x3"
+                            currentSolve.penalty = "0"
+                            currentSolve.scramble = scramble.text.toString()
                         }
                     }
                     true
@@ -149,14 +159,21 @@ class TimerFragment : Fragment() {
         }
         plusTwo.setOnClickListener {
             timerText.text = formatTime(timerText.text.toString().dropLast(3).toLong() + 2, timerText.text.toString().takeLast(2).toLong())
+            currentSolve.time += 2f
+            currentSolve.penalty = "+2"
+            SolveManager.editLastSolve(requireContext(), currentSolve)
             plusTwo.visibility = View.INVISIBLE
         }
         dnf.setOnClickListener {
-            timerText.text = "DNF"
-            //timerText.textSize = 2f
+            val dnfString = SpannableString("DNF")
+            val sizeSpan = RelativeSizeSpan(2f)
+            dnfString.setSpan(sizeSpan, 0, dnfString.length, 0)
+            timerText.text = dnfString
             dnf.visibility = View.INVISIBLE
             plusTwo.visibility = View.INVISIBLE
             penaltyShown = false
+            currentSolve.penalty = "DNF"
+            SolveManager.editLastSolve(requireContext(), currentSolve)
         }
 
         return root
@@ -244,7 +261,6 @@ class TimerFragment : Fragment() {
             }
         }
         else if (!penaltyShown && !fadeOut) {
-            Log.d("test", "it should be working")
             val viewsToFade = listOf(
                 scramble,
                 scrambleImage,
@@ -295,7 +311,7 @@ class TimerFragment : Fragment() {
         val translationX = centerX - (scrambleImage.x + scrambleImage.width / 2)
         //val translationY = centerY - (scrambleImage.y + scrambleImage.height / 2)
 
-        Log.d("test", "this is ${resources.displayMetrics.widthPixels}")
+        //Log.d("test", "this is ${resources.displayMetrics.widthPixels}")
 
         scrambleImage.animate()
             .translationX(translationX)
