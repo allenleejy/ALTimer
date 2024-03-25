@@ -560,8 +560,19 @@ class TimerFragment() : Fragment() {
         for (solve in eventSolves) {
             averageOfAll += solve.time
         }
-        averageOfAll /= eventSolves.size
-        mean.text = "MEAN\n" + String.format("%.2f", averageOfAll)
+        var meanValid = 0
+        for (solve in eventSolves) {
+            if (solve.penalty != "DNF") {
+                meanValid++
+            }
+        }
+        if (meanValid > 1) {
+            averageOfAll /= meanValid
+            mean.text = "MEAN\n" + String.format("%.2f", averageOfAll)
+        }
+        else {
+            mean.text = "MEAN\n-"
+        }
     }
     fun initialiseStats() {
         val averageFive = binding.averagefive
