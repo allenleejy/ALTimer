@@ -35,6 +35,7 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
             dnfButtonClickListener.onDNFButtonClicked(slvList.size - position - 1)
         }
         holder.statDelete.setOnClickListener {
+
             showDeleteConfirmationDialog(slvList.size - position - 1)
         }
     }
@@ -46,12 +47,14 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
         var statTime: TextView
         var statDNF: ImageButton
         var statDelete: ImageButton
+        var statSolve : TextView
         init {
             statImage = itemView.findViewById(R.id.statimage)
             statScramble = itemView.findViewById(R.id.statscramble)
             statTime = itemView.findViewById(R.id.stattime)
             statDNF = itemView.findViewById(R.id.statdnf)
             statDelete = itemView.findViewById(R.id.statdelete)
+            statSolve = itemView.findViewById(R.id.statsolve)
             itemView.setOnClickListener{ view ->
                 val pos = adapterPosition +1
                 Snackbar.make(view, "Click detected on item $pos", Snackbar.LENGTH_LONG)
@@ -67,6 +70,7 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
             }
             val cubeImage = ThreeByThreeCubePuzzle().drawScramble(slv.scramble, ThreeByThreeCubePuzzle().parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
             statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
+            statSolve.text = "${position+1}."
         }
     }
     interface TimesButtonClickListener {

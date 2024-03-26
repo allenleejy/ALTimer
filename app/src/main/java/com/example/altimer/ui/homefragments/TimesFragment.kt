@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.altimer.SharedTimesModel
 import com.example.altimer.SharedUpdateModel
 import com.example.altimer.Solve
@@ -23,6 +24,9 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
 
     private lateinit var sharedViewModel : SharedTimesModel
     private lateinit var sharedUpdateModel: SharedUpdateModel
+
+    private lateinit var layoutManager : LinearLayoutManager
+    private lateinit var timesView : RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,8 +53,8 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
     }
     override fun updateTimes() {
         Log.d("testing", "updating")
-        val timesView = binding.timesView
-        val layoutManager = LinearLayoutManager(requireContext())
+        timesView = binding.timesView
+        layoutManager = LinearLayoutManager(requireContext())
         timesView.layoutManager = layoutManager
         var solveList = ArrayList<Solve>()
         val savedSolves = SolveManager.getSolves(requireContext())
@@ -70,8 +74,12 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         sharedUpdateModel.statsUpdateListener?.updateStatistics()
     }
     override fun onDelete(position: Int) {
+        val firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
+
         SolveManager.deleteSolve(requireContext(), position)
         updateTimes()
+
+        timesView.scrollToPosition(firstPosition)
         sharedUpdateModel.statsUpdateListener?.updateStatistics()
     }
 }

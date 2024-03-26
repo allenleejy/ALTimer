@@ -90,14 +90,23 @@
             android:id="@+id/statdelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/delete"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/delete"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@id/statdnf"
             app:layout_constraintTop_toBottomOf="@id/stattime"
             app:layout_constraintVertical_bias="0.5" />
+
+        <TextView
+            android:id="@+id/statsolve"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1."
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
