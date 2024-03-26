@@ -5,27 +5,25 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.altimer.R
 import com.example.altimer.SharedTimesModel
+import com.example.altimer.SharedUpdateModel
 import com.example.altimer.Solve
 import com.example.altimer.SolveManager
 import com.example.altimer.adapters.TimesAdapter
-import com.example.altimer.databinding.FragmentGalleryBinding
-import com.example.altimer.databinding.FragmentTimerBinding
 import com.example.altimer.databinding.FragmentTimesBinding
 import com.example.altimer.ui.gallery.GalleryViewModel
 
-class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener {
+class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAdapter.TimesButtonClickListener {
 
     private var _binding: FragmentTimesBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var sharedViewModel : SharedTimesModel
+    private lateinit var sharedUpdateModel: SharedUpdateModel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,6 +37,7 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener {
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedTimesModel::class.java)
         sharedViewModel.timesUpdateListener = this
 
+        sharedUpdateModel = ViewModelProvider(requireActivity()).get(SharedUpdateModel::class.java)
         updateTimes()
 
         return root
@@ -58,7 +57,21 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener {
         savedSolves.forEach { solve ->
             solveList.add(solve)
         }
-        val adapter = TimesAdapter(solveList)
+        solveList.reverse()
+        val adapter = TimesAdapter(requireContext(), solveList, this)
         timesView.adapter = adapter
+    }
+
+
+    override fun onDNFButtonClicked(position: Int) {
+        Log.d("testing", "DNF button clicked at position $position")
+        SolveManager.makeDNF(requireContext(), position)
+        updateTimes()
+        sharedUpdateModel.statsUpdateListener?.updateStatistics()
+    }
+    override fun onDelete(position: Int) {
+        SolveManager.deleteSolve(requireContext(), position)
+        updateTimes()
+        sharedUpdateModel.statsUpdateListener?.updateStatistics()
     }
 }

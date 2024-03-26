@@ -44,4 +44,23 @@ object SolveManager {
     fun clearSolves(context: Context) {
         saveSolves(context, emptyList())
     }
+    fun makeDNF(context: Context, position: Int) {
+        val solves = getSolves(context).toMutableList()
+        solves.get(position).penalty = "DNF"
+        saveSolves(context, solves)
+    }
+    fun deleteSolve(context: Context, position: Int) {
+        val solves = getSolves(context).toMutableList()
+        solves.removeAt(position)
+        saveSolves(context, solves)
+    }
+    fun eventHasSolve(context: Context, event: String) : Boolean {
+        val solves = getSolves(context).toMutableList()
+        for (solve in solves) {
+            if (solve.event == event) {
+                return true
+            }
+        }
+        return false
+    }
 }

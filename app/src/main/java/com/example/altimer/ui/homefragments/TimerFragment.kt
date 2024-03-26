@@ -1,10 +1,8 @@
 package com.example.altimer.ui.homefragments
 
-import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.graphics.drawable.PictureDrawable
-import android.opengl.Visibility
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -28,6 +26,7 @@ import com.caverock.androidsvg.SVG
 import com.example.altimer.MainActivity
 import com.example.altimer.R
 import com.example.altimer.SharedTimesModel
+import com.example.altimer.SharedUpdateModel
 import com.example.altimer.Solve
 import com.example.altimer.SolveManager
 import com.example.altimer.databinding.FragmentTimerBinding
@@ -35,7 +34,7 @@ import com.example.altimer.ui.gallery.GalleryViewModel
 import com.example.altimer.ui.home.HomeFragment
 import org.worldcubeassociation.tnoodle.puzzle.ThreeByThreeCubePuzzle
 
-class TimerFragment() : Fragment() {
+class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
@@ -63,6 +62,7 @@ class TimerFragment() : Fragment() {
     private var currentSolve: Solve = Solve("", 0f, "", "")
 
     private lateinit var sharedViewModel : SharedTimesModel
+    private lateinit var sharedUpdateModel: SharedUpdateModel
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -91,6 +91,9 @@ class TimerFragment() : Fragment() {
 
         SolveManager.clearSolves(requireContext())
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedTimesModel::class.java)
+
+        sharedUpdateModel = ViewModelProvider(requireActivity()).get(SharedUpdateModel::class.java)
+        sharedUpdateModel.statsUpdateListener = this
 
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
@@ -584,4 +587,14 @@ class TimerFragment() : Fragment() {
         mean.text = "MEAN\n-"
         count.text = "COUNT\n-"
     }
+
+    override fun updateStatistics() {
+        if (SolveManager.eventHasSolve(requireContext(), "3x3")) {
+            updateStats("3x3")
+        }
+        else {
+            initialiseStats()
+        }
+    }
+
 }
