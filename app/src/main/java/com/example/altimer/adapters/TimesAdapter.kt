@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.graphics.drawable.PictureDrawable
+import android.text.Html
 import android.text.SpannableString
 import android.text.style.RelativeSizeSpan
 import android.util.Log
@@ -38,6 +39,7 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
 
             showDeleteConfirmationDialog(slvList.size - position - 1)
         }
+        holder.statSolve.text = "${slvList.size - position}."
     }
     override fun getItemCount() = slvList.size
 
@@ -55,11 +57,13 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
             statDNF = itemView.findViewById(R.id.statdnf)
             statDelete = itemView.findViewById(R.id.statdelete)
             statSolve = itemView.findViewById(R.id.statsolve)
-            itemView.setOnClickListener{ view ->
+            /*itemView.setOnClickListener{ view ->
                 val pos = adapterPosition +1
                 Snackbar.make(view, "Click detected on item $pos", Snackbar.LENGTH_LONG)
                     .setAction("Action",null).show()
             }
+
+             */
         }
         @SuppressLint("SetTextI18n")
         fun bindItems(slv : Solve){
@@ -70,7 +74,6 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
             }
             val cubeImage = ThreeByThreeCubePuzzle().drawScramble(slv.scramble, ThreeByThreeCubePuzzle().parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
             statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
-            statSolve.text = "${position+1}."
         }
     }
     interface TimesButtonClickListener {
@@ -80,8 +83,8 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
     private fun showDeleteConfirmationDialog(position: Int) {
         val alertDialogBuilder = AlertDialog.Builder(context, R.style.DeleteDialogStyle)
         alertDialogBuilder.setTitle("Confirm Deletion")
-        alertDialogBuilder.setMessage("Are you sure you want to delete this solve?")
-        alertDialogBuilder.setPositiveButton("OK") { dialogInterface: DialogInterface, _: Int ->
+        alertDialogBuilder.setMessage(Html.fromHtml("Are you sure you want to <font color='#FF0000'>delete</font> this solve?"))
+        alertDialogBuilder.setPositiveButton("Delete") { dialogInterface: DialogInterface, _: Int ->
             dialogInterface.dismiss()
             dnfButtonClickListener.onDelete(position)
         }

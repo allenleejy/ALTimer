@@ -569,7 +569,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
                 meanValid++
             }
         }
-        if (meanValid > 1) {
+        if (meanValid >= 1) {
             averageOfAll /= meanValid
             mean.text = "MEAN\n" + String.format("%.2f", averageOfAll)
         }

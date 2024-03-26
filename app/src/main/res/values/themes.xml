@@ -33,6 +33,10 @@
     <style name="Theme.ALTimer.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
     <style name="DeleteDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowBackground">@drawable/deletedialogbackground</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/DeleteDialogDelete</item>
+    </style>
+    <style name="DeleteDialogDelete" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/red</item>
     </style>
 
 </resources>
