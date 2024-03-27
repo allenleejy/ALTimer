@@ -31,6 +31,7 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
         val v : View = LayoutInflater.from(parent.context).inflate(R.layout.times_layout,parent,false)
         return ViewHolder(v)
     }
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: TimesAdapter.ViewHolder, position: Int) {
         holder.bindItems(slvList[position])
         holder.statDNF.setOnClickListener {
@@ -55,6 +56,7 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
             holder.statDNF.visibility = View.GONE
             holder.statPlusTwo.visibility = View.GONE
         }
+        holder.statSolve.text = (slvList.size - position).toString() + "."
     }
     override fun getItemCount() = slvList.size
 
@@ -78,14 +80,6 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
             statPlusTwoText = itemView.findViewById(R.id.plustwotext)
             statOkay = itemView.findViewById(R.id.statokay)
             statPlusTwo = itemView.findViewById(R.id.statplustwo)
-            /*itemView.setOnClickListener{ view ->
-                val pos = adapterPosition +1
-                Snackbar.make(view, "Click detected on item $pos", Snackbar.LENGTH_LONG)
-                    .setAction("Action",null).show()
-            }
-
-
-             */
         }
         @SuppressLint("SetTextI18n")
         fun bindItems(slv : Solve){
@@ -101,7 +95,6 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
             }
             val cubeImage = ThreeByThreeCubePuzzle().drawScramble(slv.scramble, ThreeByThreeCubePuzzle().parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
             statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
-            statSolve.text = "${position+1}."
             if (slv.penalty != "0") {
                 statOkay.visibility = View.VISIBLE
                 statDNF.visibility = View.GONE
