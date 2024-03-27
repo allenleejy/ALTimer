@@ -73,6 +73,17 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         updateTimes()
         sharedUpdateModel.statsUpdateListener?.updateStatistics()
     }
+    override fun onOkayPressed(scramble: String) {
+        SolveManager.removePenalty(requireContext(), scramble)
+        updateTimes()
+        sharedUpdateModel.statsUpdateListener?.updateStatistics()
+    }
+
+    override fun onPlusTwoPressed(scramble: String) {
+        SolveManager.givePlusTwo(requireContext(), scramble)
+        updateTimes()
+        sharedUpdateModel.statsUpdateListener?.updateStatistics()
+    }
     override fun onDelete(position: Int) {
         val firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
 

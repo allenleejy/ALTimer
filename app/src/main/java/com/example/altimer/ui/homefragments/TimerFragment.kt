@@ -3,6 +3,7 @@ package com.example.altimer.ui.homefragments
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.graphics.drawable.PictureDrawable
+import android.opengl.Visibility
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -569,7 +570,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
                 meanValid++
             }
         }
-        if (meanValid > 1) {
+        if (meanValid >= 1) {
             averageOfAll /= meanValid
             mean.text = "MEAN\n" + String.format("%.2f", averageOfAll)
         }
@@ -591,6 +592,10 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
     override fun updateStatistics() {
         if (SolveManager.eventHasSolve(requireContext(), "3x3")) {
             updateStats("3x3")
+            timerText.text = formatTime(0, 0)
+            plusTwo.visibility = View.GONE
+            dnf.visibility = View.GONE
+            penaltyShown = false
         }
         else {
             initialiseStats()

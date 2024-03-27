@@ -63,4 +63,52 @@ object SolveManager {
         }
         return false
     }
+    fun isPlusTwo(context:Context, scramble: String) : Boolean {
+        val solves = getSolves(context).toMutableList()
+        for (solve in solves) {
+            if (solve.scramble == scramble && solve.penalty == "+2") {
+                return true
+            }
+            else {
+                return false
+            }
+        }
+        return false
+    }
+    fun hasPenalty(context:Context, scramble: String) : Boolean {
+        val solves = getSolves(context).toMutableList()
+        for (solve in solves) {
+            if (solve.scramble == scramble) {
+                if (solve.penalty != "0") {
+                    return true
+                }
+            }
+            else {
+                return false
+            }
+        }
+        return false
+    }
+    fun removePenalty(context:Context, scramble: String) {
+        val solves = getSolves(context).toMutableList()
+        for (solve in solves) {
+            if (solve.scramble == scramble) {
+                if (solve.penalty == "+2") {
+                    solve.time -= 2.0f
+                }
+                solve.penalty = "0"
+            }
+        }
+        saveSolves(context, solves)
+    }
+    fun givePlusTwo(context:Context, scramble: String) {
+        val solves = getSolves(context).toMutableList()
+        for (solve in solves) {
+            if (solve.scramble == scramble) {
+                solve.penalty = "+2"
+                solve.time += 2.0f
+            }
+        }
+        saveSolves(context, solves)
+    }
 }

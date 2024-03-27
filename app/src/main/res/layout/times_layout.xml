@@ -33,11 +33,11 @@
 
         <TextView
             android:id="@+id/statscramble"
-            android:layout_width="250dp"
+            android:layout_width="230dp"
             android:layout_height="wrap_content"
             android:gravity="center|center_horizontal|center_vertical"
             android:text="U2 L2 U F2 D2 R' L2 B L F2 U2 B2 R' B2 L B2 D2"
-            android:textSize="20sp"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@id/statimage"
@@ -54,6 +54,19 @@
             app:layout_constraintStart_toEndOf="@+id/statimage"
             app:layout_constraintTop_toTopOf="@id/statimage"
             app:layout_constraintVertical_bias="0.5" />
+
+        <TextView
+            android:id="@+id/plustwotext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="(+2)"
+            android:textColor="#FF0000"
+            android:textSize="14sp"
+            android:visibility="invisible"
+            app:layout_constraintStart_toEndOf="@+id/stattime"
+            app:layout_constraintTop_toTopOf="@id/stattime"
+            tools:visibility="invisible" />
 
         <Button
             android:id="@+id/statplustwo"
@@ -90,12 +103,12 @@
             android:id="@+id/statdelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/delete"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@id/statdnf"
             app:layout_constraintTop_toBottomOf="@id/stattime"
             app:layout_constraintVertical_bias="0.5" />
 
@@ -107,6 +120,23 @@
             android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/statokay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:text="OK"
+            android:textColor="@android:color/black"
+            android:textSize="20dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@id/statimage"
+            app:layout_constraintTop_toBottomOf="@id/stattime"
+            app:layout_constraintVertical_bias="0.5" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
