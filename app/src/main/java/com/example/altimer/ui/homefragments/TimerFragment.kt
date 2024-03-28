@@ -118,7 +118,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
             generateScramble()
         }
         var touchStartTime: Long = 0
-
+        var downpressed = ""
         root.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -130,24 +130,26 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
                             binding.dnf.visibility = View.INVISIBLE
                             penaltyShown = false
                             running = true
+                            downpressed = "down"
                         } else {
-                            running = false
-                            timerRunnable.stopTimer()
-                            generateScramble()
-                            fadeViews(false)
-                            currentSolve.time = timerText.text.toString().toFloat()
-                            if (currentSolve.time != 0f) {
-                                SolveManager.addSolve(requireContext(), currentSolve)
+                            if (downpressed != "moved") {
+                                running = false
+                                timerRunnable.stopTimer()
+                                generateScramble()
+                                fadeViews(false)
+                                currentSolve.time = timerText.text.toString().toFloat()
+                                if (currentSolve.time != 0f) {
+                                    SolveManager.addSolve(requireContext(), currentSolve)
+                                }
+                                updateStats("3x3")
+                                updateFirst()
                             }
-                            updateStats("3x3")
-                            updateFirst()
                         }
                     }
                     true
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    val pressDuration = System.currentTimeMillis() - touchStartTime
                     if (isExpanded) {
                         zoomOut()
                     } else {
@@ -159,8 +161,13 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
                             currentSolve.event = "3x3"
                             currentSolve.penalty = "0"
                             currentSolve.scramble = scramble.text.toString()
+                            downpressed = "up"
                         }
                     }
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    downpressed = "moved"
                     true
                 }
 
@@ -332,7 +339,6 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
 
             for (view in viewsToFade) {
                 if (view.visibility == View.VISIBLE && !fadeOut) {
-                    Log.d("testing", "swipedetected")
                 }
                 else {
                     val alphaAnimation = AlphaAnimation(alphaStart, alphaEnd)

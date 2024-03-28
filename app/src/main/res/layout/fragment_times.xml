@@ -23,11 +23,12 @@
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="12dp"
         android:layout_marginBottom="12dp"
         android:clickable="true"
         android:src="@drawable/scrollupicon"
         app:backgroundTint="@color/backyellow"
+        app:fabSize="mini"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

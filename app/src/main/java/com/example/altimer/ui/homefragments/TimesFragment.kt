@@ -91,7 +91,6 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         _binding = null
     }
     override fun updateTimes() {
-        Log.d("testing", "updating")
         timesView = binding.timesView
         layoutManager = LinearLayoutManager(requireContext())
         timesView.layoutManager = layoutManager
