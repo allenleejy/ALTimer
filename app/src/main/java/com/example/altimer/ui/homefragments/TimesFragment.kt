@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.altimer.R
+import com.example.altimer.SharedEventModel
 import com.example.altimer.SharedTimesModel
 import com.example.altimer.SharedUpdateModel
 import com.example.altimer.Solve
@@ -20,17 +21,19 @@ import com.example.altimer.databinding.FragmentTimesBinding
 import com.example.altimer.ui.gallery.GalleryViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAdapter.TimesButtonClickListener {
+class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAdapter.TimesButtonClickListener, SharedEventModel.EventUpdateListener{
 
     private var _binding: FragmentTimesBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var sharedViewModel : SharedTimesModel
     private lateinit var sharedUpdateModel: SharedUpdateModel
+    private lateinit var sharedEventModel: SharedEventModel
 
     private lateinit var layoutManager : LinearLayoutManager
     private lateinit var timesView : RecyclerView
     private lateinit var fab : FloatingActionButton
+    private lateinit var currentEvent : String
 
     private var isFabVisible : Boolean = false
     override fun onCreateView(
@@ -48,6 +51,11 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
 
         sharedUpdateModel = ViewModelProvider(requireActivity()).get(SharedUpdateModel::class.java)
         updateTimes()
+
+        sharedEventModel = ViewModelProvider(requireActivity()).get(SharedEventModel::class.java)
+        sharedEventModel.eventUpdateListener = this
+
+        currentEvent = SolveManager.getCubeType(requireContext())
 
         fab = root.findViewById(R.id.fab)
         fab.setOnClickListener {
@@ -91,6 +99,8 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         _binding = null
     }
     override fun updateTimes() {
+        Log.d("testing", "updatedtimingsreal")
+        //currentEvent = SolveManager.getCubeType(requireContext())
         timesView = binding.timesView
         layoutManager = LinearLayoutManager(requireContext())
         timesView.layoutManager = layoutManager
@@ -98,12 +108,17 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         val savedSolves = SolveManager.getSolves(requireContext())
         savedSolves.forEach { solve ->
             solveList.add(solve)
+            /*
+            if (solve.event == currentEvent) {
+                solveList.add(solve)
+            }
+
+             */
         }
         solveList.reverse()
         val adapter = TimesAdapter(requireContext(), solveList, this)
         timesView.adapter = adapter
     }
-
 
     override fun onDNFButtonClicked(position: Int) {
         val firstPosition = layoutManager.findFirstVisibleItemPosition()
@@ -144,4 +159,10 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         timesView.scrollToPosition(firstPosition)
         sharedUpdateModel.statsUpdateListener?.updateStatistics()
     }
+
+    override fun updateEvent() {
+        Log.d("test", "UPDATED")
+
+    }
+
 }

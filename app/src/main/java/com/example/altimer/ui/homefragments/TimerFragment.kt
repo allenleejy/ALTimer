@@ -3,7 +3,6 @@ package com.example.altimer.ui.homefragments
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.graphics.drawable.PictureDrawable
-import android.opengl.Visibility
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -26,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.caverock.androidsvg.SVG
 import com.example.altimer.MainActivity
 import com.example.altimer.R
+import com.example.altimer.SharedEventModel
 import com.example.altimer.SharedTimesModel
 import com.example.altimer.SharedUpdateModel
 import com.example.altimer.Solve
@@ -33,9 +33,13 @@ import com.example.altimer.SolveManager
 import com.example.altimer.databinding.FragmentTimerBinding
 import com.example.altimer.ui.gallery.GalleryViewModel
 import com.example.altimer.ui.home.HomeFragment
+import org.worldcubeassociation.tnoodle.puzzle.ClockPuzzle
+import org.worldcubeassociation.tnoodle.puzzle.PyraminxPuzzle
 import org.worldcubeassociation.tnoodle.puzzle.ThreeByThreeCubePuzzle
+import org.worldcubeassociation.tnoodle.puzzle.TwoByTwoCubePuzzle
+import org.worldcubeassociation.tnoodle.scrambles.Puzzle
 
-class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
+class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, SharedEventModel.EventUpdateListener{
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
@@ -47,7 +51,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
     private lateinit var plusTwo: Button
     private lateinit var dnf: ImageButton
 
-    private val cube = ThreeByThreeCubePuzzle()
+    private var cube : Puzzle = ThreeByThreeCubePuzzle()
     private lateinit var generatedScramble: String
     private lateinit var cubeImage: String
 
@@ -64,6 +68,11 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
 
     private lateinit var sharedViewModel : SharedTimesModel
     private lateinit var sharedUpdateModel: SharedUpdateModel
+    private lateinit var sharedEventModel: SharedEventModel
+
+
+    private lateinit var currentEvent : String
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -96,7 +105,12 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
         sharedUpdateModel = ViewModelProvider(requireActivity()).get(SharedUpdateModel::class.java)
         sharedUpdateModel.statsUpdateListener = this
 
+        sharedEventModel = ViewModelProvider(requireActivity()).get(SharedEventModel::class.java)
+        sharedEventModel.eventUpdateListener = this
+
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+
+        currentEvent = SolveManager.getCubeType(requireContext())
 
         val textView = binding.timer
 
@@ -141,7 +155,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
                                 if (currentSolve.time != 0f) {
                                     SolveManager.addSolve(requireContext(), currentSolve)
                                 }
-                                updateStats("3x3")
+                                updateStats(currentEvent)
                                 updateFirst()
                             }
                         }
@@ -158,7 +172,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
                             timerText.post(timerRunnable)
                             timerRunnable.startTimer()
                             fadeViews(true)
-                            currentSolve.event = "3x3"
+                            currentSolve.event = currentEvent
                             currentSolve.penalty = "0"
                             currentSolve.scramble = scramble.text.toString()
                             downpressed = "up"
@@ -191,7 +205,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
             currentSolve.penalty = "+2"
             SolveManager.editLastSolve(requireContext(), currentSolve)
             updateFirst()
-            updateStats("3x3")
+            updateStats(currentEvent)
             plusTwo.visibility = View.INVISIBLE
         }
         dnf.setOnClickListener {
@@ -204,7 +218,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
             penaltyShown = false
             currentSolve.penalty = "DNF"
             SolveManager.editLastSolve(requireContext(), currentSolve)
-            updateStats("3x3")
+            updateStats(currentEvent)
             updateFirst()
         }
 
@@ -596,8 +610,8 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
     }
 
     override fun updateStatistics() {
-        if (SolveManager.eventHasSolve(requireContext(), "3x3")) {
-            updateStats("3x3")
+        if (SolveManager.eventHasSolve(requireContext(), currentEvent)) {
+            updateStats(currentEvent)
             timerText.text = formatTime(0, 0)
             plusTwo.visibility = View.GONE
             dnf.visibility = View.GONE
@@ -608,4 +622,32 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener{
         }
     }
 
+    override fun updateEvent() {
+        //Log.d("testing", "updateEvent")
+        val event = SolveManager.getCubeType(requireContext())
+        if (event == "3x3") {
+            cube = ThreeByThreeCubePuzzle()
+            currentEvent = "3x3"
+        }
+        else if (event == "2x2") {
+            cube = TwoByTwoCubePuzzle()
+            currentEvent = "2x2"
+        }
+        else if (event == "Clock") {
+            cube = ClockPuzzle()
+            currentEvent = "Clock"
+        }
+        else {
+            cube = PyraminxPuzzle()
+            currentEvent = "Pyra"
+        }
+        generateScramble()
+        updateTimeEvent()
+        Log.d("test", "UPDATED")
+        //sharedViewModel.eventUpdateListener?.updateEvent()
+    }
+    fun updateTimeEvent() {
+        sharedViewModel.eventUpdateListener?.updateEvent()
+        Log.d("test", "notified")
+    }
 }
