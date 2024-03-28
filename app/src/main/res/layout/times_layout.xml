@@ -38,10 +38,12 @@
             android:gravity="center|center_horizontal|center_vertical"
             android:text="U2 L2 U F2 D2 R' L2 B L F2 U2 B2 R' B2 L B2 D2"
             android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/stattime"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@id/statimage"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5" />
 
         <TextView
             android:id="@+id/stattime"

@@ -21,14 +21,13 @@ import com.example.altimer.databinding.FragmentTimesBinding
 import com.example.altimer.ui.gallery.GalleryViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAdapter.TimesButtonClickListener, SharedEventModel.EventUpdateListener{
+class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAdapter.TimesButtonClickListener{
 
     private var _binding: FragmentTimesBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var sharedViewModel : SharedTimesModel
     private lateinit var sharedUpdateModel: SharedUpdateModel
-    private lateinit var sharedEventModel: SharedEventModel
 
     private lateinit var layoutManager : LinearLayoutManager
     private lateinit var timesView : RecyclerView
@@ -51,9 +50,6 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
 
         sharedUpdateModel = ViewModelProvider(requireActivity()).get(SharedUpdateModel::class.java)
         updateTimes()
-
-        sharedEventModel = ViewModelProvider(requireActivity()).get(SharedEventModel::class.java)
-        sharedEventModel.eventUpdateListener = this
 
         currentEvent = SolveManager.getCubeType(requireContext())
 
@@ -99,22 +95,15 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         _binding = null
     }
     override fun updateTimes() {
-        Log.d("testing", "updatedtimingsreal")
-        //currentEvent = SolveManager.getCubeType(requireContext())
+
+        Log.d("tester", "gotupdatedfdnf")
+        currentEvent = SolveManager.getCubeType(requireContext())
+        Log.d("tester", currentEvent)
+
         timesView = binding.timesView
         layoutManager = LinearLayoutManager(requireContext())
         timesView.layoutManager = layoutManager
-        var solveList = ArrayList<Solve>()
-        val savedSolves = SolveManager.getSolves(requireContext())
-        savedSolves.forEach { solve ->
-            solveList.add(solve)
-            /*
-            if (solve.event == currentEvent) {
-                solveList.add(solve)
-            }
-
-             */
-        }
+        val solveList = SolveManager.getSolveFromEvent(requireContext(), currentEvent)
         solveList.reverse()
         val adapter = TimesAdapter(requireContext(), solveList, this)
         timesView.adapter = adapter
@@ -158,11 +147,6 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
 
         timesView.scrollToPosition(firstPosition)
         sharedUpdateModel.statsUpdateListener?.updateStatistics()
-    }
-
-    override fun updateEvent() {
-        Log.d("test", "UPDATED")
-
     }
 
 }

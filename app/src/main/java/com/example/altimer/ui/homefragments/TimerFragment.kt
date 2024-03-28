@@ -99,7 +99,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
 
         initialiseStats()
 
-        SolveManager.clearSolves(requireContext())
+        //SolveManager.clearSolves(requireContext())
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedTimesModel::class.java)
 
         sharedUpdateModel = ViewModelProvider(requireActivity()).get(SharedUpdateModel::class.java)
@@ -111,6 +111,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         currentEvent = SolveManager.getCubeType(requireContext())
+        updateEvent()
 
         val textView = binding.timer
 
@@ -220,6 +221,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             SolveManager.editLastSolve(requireContext(), currentSolve)
             updateStats(currentEvent)
             updateFirst()
+            Log.d("tester", "update first on dnf")
         }
 
         return root
@@ -579,7 +581,13 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                 averageTwelve.text = "AO12\n" + String.format("%.2f", averageOfTwelve)
             }
         }
-        count.text = "COUNT\n${eventSolves.size}"
+
+        if (eventSolves.size != 0) {
+            count.text = "COUNT\n${eventSolves.size}"
+        }
+        else {
+            count.text = "COUNT\n-"
+        }
         averageOfAll = 0f
         for (solve in eventSolves) {
             averageOfAll += solve.time
@@ -623,7 +631,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
     }
 
     override fun updateEvent() {
-        //Log.d("testing", "updateEvent")
+        Log.d("tester", "event has been updated")
         val event = SolveManager.getCubeType(requireContext())
         if (event == "3x3") {
             cube = ThreeByThreeCubePuzzle()
@@ -639,15 +647,10 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         }
         else {
             cube = PyraminxPuzzle()
-            currentEvent = "Pyra"
+            currentEvent = "Pyraminx"
         }
         generateScramble()
-        updateTimeEvent()
-        Log.d("test", "UPDATED")
-        //sharedViewModel.eventUpdateListener?.updateEvent()
-    }
-    fun updateTimeEvent() {
-        sharedViewModel.eventUpdateListener?.updateEvent()
-        Log.d("test", "notified")
+        updateFirst()
+        updateStats(currentEvent)
     }
 }

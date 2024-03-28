@@ -22,7 +22,10 @@ import com.example.altimer.R
 import com.example.altimer.Solve
 import com.example.altimer.SolveManager
 import com.google.android.material.snackbar.Snackbar
+import org.worldcubeassociation.tnoodle.puzzle.ClockPuzzle
+import org.worldcubeassociation.tnoodle.puzzle.PyraminxPuzzle
 import org.worldcubeassociation.tnoodle.puzzle.ThreeByThreeCubePuzzle
+import org.worldcubeassociation.tnoodle.puzzle.TwoByTwoCubePuzzle
 import java.nio.InvalidMarkException
 
 class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private val dnfButtonClickListener: TimesButtonClickListener) : RecyclerView.Adapter<TimesAdapter.ViewHolder>() {
@@ -93,8 +96,28 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
                 Log.d("testing", "trying")
                 statPlusTwoText.visibility = View.VISIBLE
             }
-            val cubeImage = ThreeByThreeCubePuzzle().drawScramble(slv.scramble, ThreeByThreeCubePuzzle().parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
-            statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
+            Log.d("testering", slv.event)
+            if (slv.event == "3x3") {
+                val cubeImage = ThreeByThreeCubePuzzle().drawScramble(slv.scramble, ThreeByThreeCubePuzzle().parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
+                statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
+            }
+            else if (slv.event == "2x2") {
+                val cubeImage = TwoByTwoCubePuzzle().drawScramble(slv.scramble, TwoByTwoCubePuzzle().parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
+                statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
+            }
+            else if (slv.event == "Clock") {
+                val cubeImage = ClockPuzzle().drawScramble(slv.scramble, ClockPuzzle().parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
+                statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
+                statScramble.textSize = 14.0f
+            }
+            else {
+                val cubeImage = PyraminxPuzzle().drawScramble(slv.scramble, PyraminxPuzzle().parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
+                statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
+                statImage.scaleX = 0.8f
+                statImage.scaleY = 0.8f
+            }
+
+
             if (slv.penalty != "0") {
                 statOkay.visibility = View.VISIBLE
                 statDNF.visibility = View.GONE

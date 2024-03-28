@@ -74,6 +74,10 @@ class MainActivity : AppCompatActivity() {
         }
         sharedEventModel = ViewModelProvider(this).get(SharedEventModel::class.java)
 
+        val currentEvent = SolveManager.getCubeType(this)
+        handlePuzzleSelection(currentEvent)
+        sharedEventModel.eventUpdateListener?.updateEvent()
+
     }
     fun fadeToolbarAndTabLayout(fadeOut: Boolean) {
         val duration = 300L // Set your desired duration here

@@ -121,4 +121,14 @@ object SolveManager {
         val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
         return sharedPreferences.getString(CUBE_TYPE_KEY, "") ?: ""
     }
+    fun getSolveFromEvent(context: Context, event: String) : ArrayList<Solve> {
+        val solves = getSolves(context).toMutableList()
+        val eventsolves = ArrayList<Solve>()
+        for (solve in solves) {
+            if (solve.event == event) {
+                eventsolves.add(solve)
+            }
+        }
+        return eventsolves
+    }
 }
