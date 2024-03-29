@@ -38,7 +38,7 @@ class HomeFragment : Fragment(){
         viewPager = binding.viewPager
         tabLayout = binding.tabLayout
 
-        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        //(activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         val adapter = HomeViewPagerAdapter(this)
         viewPager.adapter = adapter

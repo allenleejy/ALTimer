@@ -57,7 +57,7 @@ class GalleryFragment : Fragment(), UpdateAlgModel.AlgUpdateListener {
 
         _binding = FragmentGalleryBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        //(activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         algView = binding.algView
 
         updateAlgModel = ViewModelProvider(requireActivity()).get(UpdateAlgModel::class.java)
@@ -80,6 +80,7 @@ class GalleryFragment : Fragment(), UpdateAlgModel.AlgUpdateListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //(activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
         algView = binding.algView
         layoutManager = GridLayoutManager(requireContext(), 2)
         algView.layoutManager = layoutManager

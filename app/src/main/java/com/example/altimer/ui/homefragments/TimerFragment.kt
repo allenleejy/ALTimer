@@ -4,6 +4,8 @@ import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.graphics.drawable.PictureDrawable
 import android.os.Bundle
+import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.RelativeSizeSpan
@@ -38,8 +40,9 @@ import org.worldcubeassociation.tnoodle.puzzle.PyraminxPuzzle
 import org.worldcubeassociation.tnoodle.puzzle.ThreeByThreeCubePuzzle
 import org.worldcubeassociation.tnoodle.puzzle.TwoByTwoCubePuzzle
 import org.worldcubeassociation.tnoodle.scrambles.Puzzle
+import java.util.Locale
 
-class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, SharedEventModel.EventUpdateListener{
+class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, SharedEventModel.EventUpdateListener, TextToSpeech.OnInitListener{
 
     private var _binding: FragmentTimerBinding? = null
     private val binding get() = _binding!!
@@ -65,13 +68,16 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
     private var penaltyShown = false
 
     private var currentSolve: Solve = Solve("", 0f, "", "")
+    private var currentSolvePenalty : String = "0"
 
     private lateinit var sharedViewModel : SharedTimesModel
     private lateinit var sharedUpdateModel: SharedUpdateModel
     private lateinit var sharedEventModel: SharedEventModel
 
-
+    private var countdownTimer: CountDownTimer? = null
     private lateinit var currentEvent : String
+
+    private lateinit var textToSpeech: TextToSpeech
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -97,6 +103,8 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         centerX = resources.displayMetrics.widthPixels / 2
         centerY = resources.displayMetrics.heightPixels / 2
 
+        textToSpeech = TextToSpeech(requireActivity(), this)
+
         initialiseStats()
 
         //SolveManager.clearSolves(requireContext())
@@ -108,7 +116,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         sharedEventModel = ViewModelProvider(requireActivity()).get(SharedEventModel::class.java)
         sharedEventModel.eventUpdateListener = this
 
-        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        //(activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
 
         currentEvent = SolveManager.getCubeType(requireContext())
         updateEvent()
@@ -136,20 +144,30 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             generateScramble()
         }
 
-        var touchStartTime: Long = 0
         var downpressed = ""
+        var inspstarted = false
         root.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    touchStartTime = System.currentTimeMillis()
+                    var inspection = SolveManager.getInspection(requireContext())
+                    Log.d("testing", inspection + inspstarted.toString())
                     if (!isExpanded) {
                         if (!running) {
-                            timerRunnable.resetTimer()
-                            binding.plustwo.visibility = View.INVISIBLE
-                            binding.dnf.visibility = View.INVISIBLE
-                            penaltyShown = false
-                            running = true
-                            downpressed = "down"
+                            if (inspection == "false") {
+                                timerRunnable.resetTimer()
+                                binding.plustwo.visibility = View.INVISIBLE
+                                binding.dnf.visibility = View.INVISIBLE
+                                penaltyShown = false
+                                running = true
+                                downpressed = "down"
+                            }
+                            else if (inspstarted == false) {
+                                inspstarted = true
+                            }
+                            else if (inspstarted == true) {
+                                inspstarted = false
+                                running = true
+                            }
                         } else {
                             if (downpressed != "moved") {
                                 running = false
@@ -157,6 +175,8 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                                 generateScramble()
                                 fadeViews(false)
                                 currentSolve.time = timerText.text.toString().toFloat()
+                                currentSolve.event = currentEvent
+                                currentSolve.penalty = currentSolvePenalty
                                 if (currentSolve.time != 0f) {
                                     SolveManager.addSolve(requireContext(), currentSolve)
                                 }
@@ -169,18 +189,40 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                 }
 
                 MotionEvent.ACTION_UP -> {
+                    var inspection = SolveManager.getInspection(requireContext())
                     if (isExpanded) {
                         zoomOut()
                     } else {
                         if (running) {
-                            startTime = System.currentTimeMillis()
-                            timerText.post(timerRunnable)
-                            timerRunnable.startTimer()
-                            fadeViews(true)
-                            currentSolve.event = currentEvent
-                            currentSolve.penalty = "0"
-                            currentSolve.scramble = scramble.text.toString()
-                            downpressed = "up"
+                            if (inspection == "true" && !inspstarted) {
+                                countdownTimer?.cancel()
+                                startTime = System.currentTimeMillis()
+                                timerText.post(timerRunnable)
+                                timerRunnable.startTimer()
+                                fadeoutInspection()
+                                currentSolve.event = currentEvent
+                                currentSolve.penalty = "0"
+                                currentSolve.scramble = scramble.text.toString()
+                                downpressed = "up"
+                            }
+                            else if (inspection == "false"){
+                                startTime = System.currentTimeMillis()
+                                timerText.post(timerRunnable)
+                                timerRunnable.startTimer()
+                                fadeViews(true)
+                                currentSolve.event = currentEvent
+                                currentSolve.penalty = "0"
+                                currentSolve.scramble = scramble.text.toString()
+                                downpressed = "up"
+                            }
+                        }
+                        else {
+                            if (inspection == "true" && inspstarted) {
+                                startCountdownTimer()
+                                fadeViews(true)
+                                fadeinInspection()
+                                Log.d("testing", "tried to fade")
+                            }
                         }
                     }
                     true
@@ -240,6 +282,9 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
     fun generateScramble() {
         generatedScramble = cube.generateScramble()
         scramble.text = generatedScramble
+        if (currentEvent == "Clock") {
+            scramble.textSize = 18f
+        }
 
         cubeImage = cube.drawScramble(
             generatedScramble,
@@ -296,6 +341,16 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
 
         return builder
     }
+    private fun formatInspection(seconds: String) : SpannableStringBuilder {
+        val builder = SpannableStringBuilder()
+
+        val secondsPart = seconds
+        val secondsSpan = SpannableString(secondsPart)
+        secondsSpan.setSpan(RelativeSizeSpan(2f), 0, secondsPart.length, 0)
+        builder.append(secondsSpan)
+
+        return builder
+    }
 
     private fun fadeViews(fadeOut: Boolean) {
         val duration = 300L // Set your desired duration here
@@ -306,6 +361,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         mainActivity.fadeToolbarAndTabLayout(fadeOut)
 
         (parentFragment as? HomeFragment)?.fadeTabLayout(fadeOut)
+
         if (!penaltyShown && fadeOut) {
             val viewsToFade = listOf(
                 scramble,
@@ -658,5 +714,59 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         generateScramble()
         updateFirst()
         updateStats(currentEvent)
+    }
+    private fun startCountdownTimer() {
+        countdownTimer = object : CountDownTimer(17000, 1000) { // 15 seconds, tick every 1 second
+            override fun onTick(millisUntilFinished: Long) {
+                val remainingSeconds = millisUntilFinished / 1000
+                if (remainingSeconds <= 1) {
+                    timerText.text = formatInspection("+2")
+                    currentSolvePenalty = "+2"
+                }
+                else {
+                    if (remainingSeconds == 8.toLong()) {
+                        speak("8 seconds")
+                    }
+                    if (remainingSeconds == 4.toLong()) {
+                        speak("12 seconds")
+                    }
+                    timerText.text = formatInspection((remainingSeconds - 1).toString())
+                    currentSolvePenalty = "0"
+                }
+            }
+
+            override fun onFinish() {
+                timerText.text = formatInspection("DNF")
+                speak("DNF")
+                currentSolvePenalty = "DNF"
+                fadeoutInspection()
+            }
+
+        }
+        countdownTimer?.start()
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = textToSpeech!!.setLanguage(Locale.US)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "The Language not supported!")
+            }
+        }
+    }
+    fun speak(text: String) {
+        textToSpeech?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+    }
+    fun fadeinInspection() {
+        val fadein = AlphaAnimation(0f, 1f)
+        fadein.duration = 200L
+        binding.inspection.startAnimation(fadein)
+        binding.inspection.visibility = View.VISIBLE
+    }
+    fun fadeoutInspection() {
+        val fadeout = AlphaAnimation(1f, 0f)
+        fadeout.duration = 200L
+        binding.inspection.startAnimation(fadeout)
+        binding.inspection.visibility = View.INVISIBLE
     }
 }

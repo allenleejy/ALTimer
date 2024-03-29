@@ -10,6 +10,7 @@ object SolveManager {
     private const val SOLVES_KEY = "solves"
     private const val CUBE_TYPE_KEY = "cube_type"
     private const val ALG_TYPE_KEY = "alg_type"
+    private const val INSP_TYPE_KEY = "insp_state"
     fun saveSolves(context: Context, solves: List<Solve>) {
         val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -141,5 +142,15 @@ object SolveManager {
     fun getAlgType(context: Context): String {
         val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
         return sharedPreferences.getString(ALG_TYPE_KEY, "") ?: ""
+    }
+    fun saveInspection(context: Context, inspection: String) {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString(INSP_TYPE_KEY, inspection)
+        editor.apply()
+    }
+    fun getInspection(context: Context): String {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
+        return sharedPreferences.getString(INSP_TYPE_KEY, "") ?: ""
     }
 }

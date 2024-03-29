@@ -39,5 +39,7 @@
     <style name="DeleteDialogDelete" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">@color/red</item>
     </style>
+    <style name="InspectionSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
+    </style>
 
 </resources>

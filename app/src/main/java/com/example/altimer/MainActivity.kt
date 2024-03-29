@@ -44,7 +44,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         toolbar = findViewById(R.id.custom_toolbar)
-        navSettings = findViewById(R.id.nav_settings)
         puzzleName = findViewById(R.id.puzzleName)
         puzzleSelection = findViewById(R.id.puzzleSelection)
 
@@ -63,17 +62,13 @@ class MainActivity : AppCompatActivity() {
         )
 
         setupActionBarWithNavController(navController, appBarConfiguration)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
         navView.setupWithNavController(navController)
 
-        navSettings.setOnClickListener {
-            navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-        }
 
         puzzleSelection.setOnClickListener {
             val currentDestinationId = navController.currentDestination?.id
             Log.d("testing", "Current Destination ID: $currentDestinationId")
-            if (currentDestinationId == 2131362124) {
+            if (currentDestinationId == 2131362133) {
                 showPuzzleSelectionDialog()
             }
             else {
@@ -198,10 +193,15 @@ class MainActivity : AppCompatActivity() {
     fun updatePuzzleName() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         val currentDestinationId = navController.currentDestination?.id
-        if (currentDestinationId == 2131362123) {
+        Log.d("test", currentDestinationId.toString())
+        if (currentDestinationId == 2131362132) {
+            toolbar.findViewById<ImageView>(R.id.spinnerIcon).visibility = View.VISIBLE
+            toolbar.findViewById<RelativeLayout>(R.id.puzzleSelection).isClickable = true
             puzzleName.text = "3x3 " + SolveManager.getAlgType(this)
         }
-        else {
+        else if (currentDestinationId == 2131362133){
+            toolbar.findViewById<ImageView>(R.id.spinnerIcon).visibility = View.VISIBLE
+            toolbar.findViewById<RelativeLayout>(R.id.puzzleSelection).isClickable = true
             var cubetype = SolveManager.getCubeType(this)
             if (cubetype == "2x2") {
                 cubetype = "2x2 Cube"
@@ -211,6 +211,11 @@ class MainActivity : AppCompatActivity() {
             }
             puzzleName.text = cubetype
         }
+        else {
+            puzzleName.text = "Settings"
+            toolbar.findViewById<ImageView>(R.id.spinnerIcon).visibility = View.INVISIBLE
+            toolbar.findViewById<RelativeLayout>(R.id.puzzleSelection).isClickable = false
+        }
     }
 
 
@@ -219,10 +224,10 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
-
+     */
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
-     */
+
 }

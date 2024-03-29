@@ -115,6 +115,7 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
                 statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))
                 statImage.scaleX = 0.8f
                 statImage.scaleY = 0.8f
+                statScramble.textSize = 16.0f
             }
 
 

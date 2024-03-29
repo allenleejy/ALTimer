@@ -14,8 +14,7 @@
             android:title="Algorithms" />
     </group>
 
-    <!-- Dummy group with a visible title acting as a divider -->
-    <group android:id="@+id/group_bottom" android:checkableBehavior="none">
+    <group android:id="@+id/group_bottom" android:checkableBehavior="single">
         <item
             android:title="Settings"
             android:icon="@drawable/settings"
