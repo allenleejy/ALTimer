@@ -95,18 +95,19 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         _binding = null
     }
     override fun updateTimes() {
+        _binding?.let { binding ->
+            Log.d("tester", "gotupdatedfdnf")
+            currentEvent = SolveManager.getCubeType(requireContext())
+            Log.d("tester", currentEvent)
 
-        Log.d("tester", "gotupdatedfdnf")
-        currentEvent = SolveManager.getCubeType(requireContext())
-        Log.d("tester", currentEvent)
-
-        timesView = binding.timesView
-        layoutManager = LinearLayoutManager(requireContext())
-        timesView.layoutManager = layoutManager
-        val solveList = SolveManager.getSolveFromEvent(requireContext(), currentEvent)
-        solveList.reverse()
-        val adapter = TimesAdapter(requireContext(), solveList, this)
-        timesView.adapter = adapter
+            timesView = binding.timesView
+            layoutManager = LinearLayoutManager(requireContext())
+            timesView.layoutManager = layoutManager
+            val solveList = SolveManager.getSolveFromEvent(requireContext(), currentEvent)
+            solveList.reverse()
+            val adapter = TimesAdapter(requireContext(), solveList, this)
+            timesView.adapter = adapter
+        }
     }
 
     override fun onDNFButtonClicked(position: Int) {

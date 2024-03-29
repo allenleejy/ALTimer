@@ -129,9 +129,13 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
 
         generateScramble()
 
+        val mainActivity = requireActivity() as MainActivity
+        mainActivity.updatePuzzleName()
+
         newScramble.setOnClickListener {
             generateScramble()
         }
+
         var touchStartTime: Long = 0
         var downpressed = ""
         root.setOnTouchListener { _, event ->
@@ -225,6 +229,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         }
 
         return root
+
     }
 
     override fun onDestroyView() {
@@ -632,7 +637,8 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
 
     override fun updateEvent() {
         Log.d("tester", "event has been updated")
-        val event = SolveManager.getCubeType(requireContext())
+        val context = context ?: return // Check if context is null
+        val event = SolveManager.getCubeType(context)
         if (event == "3x3") {
             cube = ThreeByThreeCubePuzzle()
             currentEvent = "3x3"

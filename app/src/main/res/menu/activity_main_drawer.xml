@@ -10,11 +10,15 @@
             android:title="Timer" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@android:drawable/ic_menu_sort_alphabetically"
+            android:icon="@drawable/algorithms"
             android:title="Algorithms" />
+    </group>
+
+    <!-- Dummy group with a visible title acting as a divider -->
+    <group android:id="@+id/group_bottom" android:checkableBehavior="none">
         <item
-            android:id="@+id/nav_slideshow"
+            android:title="Settings"
             android:icon="@drawable/settings"
-            android:title="Settings" />
+            android:id="@+id/nav_slideshow"/>
     </group>
 </menu>

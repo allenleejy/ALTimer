@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken
 object SolveManager {
     private const val SOLVES_KEY = "solves"
     private const val CUBE_TYPE_KEY = "cube_type"
+    private const val ALG_TYPE_KEY = "alg_type"
     fun saveSolves(context: Context, solves: List<Solve>) {
         val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -130,5 +131,15 @@ object SolveManager {
             }
         }
         return eventsolves
+    }
+    fun saveAlgType(context: Context, algType: String) {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString(ALG_TYPE_KEY, algType)
+        editor.apply()
+    }
+    fun getAlgType(context: Context): String {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
+        return sharedPreferences.getString(ALG_TYPE_KEY, "") ?: ""
     }
 }
