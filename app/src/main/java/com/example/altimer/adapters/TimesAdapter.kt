@@ -48,7 +48,7 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
             showDeleteConfirmationDialog(slvList[position].scramble)
         }
         holder.statOkay.setOnClickListener {
-            Log.d("testing", position.toString())
+
             dnfButtonClickListener.onOkayPressed(slvList[position].scramble)
             holder.statOkay.visibility = View.GONE
             holder.statDNF.visibility = View.VISIBLE
@@ -94,10 +94,10 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
                 statTime.text = "DNF (${String.format("%.2f", slv.time)})"
             }
             if (slv.penalty == "+2") {
-                Log.d("testing", "trying")
+
                 statPlusTwoText.visibility = View.VISIBLE
             }
-            Log.d("testering", slv.event)
+
             if (slv.event == "3x3") {
                 val cubeImage = ThreeByThreeCubePuzzle().drawScramble(slv.scramble, ThreeByThreeCubePuzzle().parseColorScheme("304FFE" + "," + "FDD835" + "," + "02D040" + "," + "EF6C00" + "," + "EC0000" + "," + "FFFFFF")).toString()
                 statImage.setImageDrawable(PictureDrawable(SVG.getFromString(cubeImage).renderToPicture()))

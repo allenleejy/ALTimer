@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
 
         puzzleSelection.setOnClickListener {
             val currentDestinationId = navController.currentDestination?.displayName
-            Log.d("testing", "Current Destination ID: $currentDestinationId")
+
             if (currentDestinationId == "com.example.altimer:id/nav_home") {
                 showPuzzleSelectionDialog()
             }
@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity() {
             drawerLayout.visibility = View.VISIBLE
         }
 
-        Log.d("testing", AlgorithmReader.readPLL(this).toString())
+
 
         updatePuzzleName()
     }
@@ -199,7 +199,7 @@ class MainActivity : AppCompatActivity() {
             puzzleName.text = "3x3 OLL"
             SolveManager.saveAlgType(this, "OLL")
             updateAlgModel.updateAlgListener?.updateAlgs()
-            Log.d("test", "changed to OLL")
+
             dialog.dismiss()
         }
         layoutpll.setOnClickListener {
@@ -232,14 +232,14 @@ class MainActivity : AppCompatActivity() {
     fun updatePuzzleName() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         val currentDestinationId = navController.currentDestination?.displayName
-        Log.d("vy", currentDestinationId.toString() + "currently")
+
         if (currentDestinationId == "com.example.altimer:id/nav_gallery") {
             toolbar.findViewById<ImageView>(R.id.spinnerIcon).visibility = View.VISIBLE
             toolbar.findViewById<RelativeLayout>(R.id.puzzleSelection).isClickable = true
             puzzleName.text = "3x3 " + SolveManager.getAlgType(this)
         }
         else if (currentDestinationId == "com.example.altimer:id/nav_home"){
-            Log.d("vy", "ITS HERE WHAT")
+
             toolbar.findViewById<ImageView>(R.id.spinnerIcon).visibility = View.VISIBLE
             toolbar.findViewById<RelativeLayout>(R.id.puzzleSelection).isClickable = true
             var cubetype = SolveManager.getCubeType(this)
@@ -299,7 +299,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onAnimationEnd(animation: Animation?) {
                 onboarding.visibility = View.GONE
-                Log.d("vy", "it tried")
+
                 fadeInLayout()
                 requestNotificationPermission()
             }

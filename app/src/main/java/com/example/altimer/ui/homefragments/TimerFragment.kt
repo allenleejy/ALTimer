@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
@@ -119,7 +120,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
 
         initialiseStats()
 
-        //SolveManager.clearSolves(requireContext())
+
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedTimesModel::class.java)
 
         sharedUpdateModel = ViewModelProvider(requireActivity()).get(SharedUpdateModel::class.java)
@@ -164,7 +165,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     var inspection = SolveManager.getInspection(requireContext())
-                    Log.d("testing", inspection + inspstarted.toString())
+
                     if (!isExpanded) {
                         if (!running) {
                             if (inspection == "false") {
@@ -239,7 +240,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                                 startCountdownTimer()
                                 fadeViews(true)
                                 fadeinInspection()
-                                Log.d("testing", "tried to fade")
+
                             }
                         }
                     }
@@ -287,7 +288,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             updateStats(currentEvent)
             updateFirst()
             Toast.makeText(requireContext(), "DNF Applied", Toast.LENGTH_SHORT).show()
-            Log.d("tester", "update first on dnf")
+
         }
         shareButton.setOnClickListener {
             val message = "$currentEvent\n\n${currentSolve.time}\n\n${currentSolve.scramble}"
@@ -380,7 +381,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
     }
 
     private fun fadeViews(fadeOut: Boolean) {
-        val duration = 300L // Set your desired duration here
+        val duration = 300L
         val alphaStart = if (fadeOut) 1.0f else 0.0f
         val alphaEnd = if (fadeOut) 0.0f else 1.0f
 
@@ -459,17 +460,17 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
 
     private fun zoomIn() {
         val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.zoom_in)
-        animation.duration = 200
-        animation.interpolator = LinearInterpolator()
+        animation.duration = 300
+        animation.interpolator = AccelerateDecelerateInterpolator()
 
         val translationX = centerX - (scrambleImage.x + scrambleImage.width / 2)
-        //val translationY = centerY - (scrambleImage.y + scrambleImage.height / 2)
+        val translationY = scrambleImage.height - centerY.toFloat()
 
-        //Log.d("test", "this is ${resources.displayMetrics.widthPixels}")
+
 
         scrambleImage.animate()
             .translationX(translationX)
-            .translationY(-centerY.toFloat() + scrambleImage.height)
+            .translationY(translationY)
             .scaleX(2f)
             .scaleY(2f)
             .setDuration(animation.duration)
@@ -494,8 +495,8 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
 
     private fun zoomOut() {
         val animation = AnimationUtils.loadAnimation(requireContext(), R.anim.zoom_out)
-        animation.duration = 200
-        animation.interpolator = LinearInterpolator()
+        animation.duration = 300
+        animation.interpolator = AccelerateDecelerateInterpolator()
 
         val translationX = 0f
         val translationY = 0f
@@ -678,7 +679,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             }
             if (aotwelvelist.size == 11) {
                 aotwelvelist.remove(shortest)
-                Log.d("testing", aotwelvelist.toString())
+
                 for (time in aotwelvelist) {
                     averageOfTwelve += time
                 }
@@ -749,8 +750,8 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
     }
 
     override fun updateEvent() {
-        Log.d("tester", "event has been updated")
-        val context = context ?: return // Check if context is null
+
+        val context = context ?: return
         val event = SolveManager.getCubeType(context)
         if (event == "3x3") {
             cube = ThreeByThreeCubePuzzle()
@@ -773,7 +774,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         updateStats(currentEvent)
     }
     private fun startCountdownTimer() {
-        countdownTimer = object : CountDownTimer(17000, 1000) { // 15 seconds, tick every 1 second
+        countdownTimer = object : CountDownTimer(17000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val remainingSeconds = millisUntilFinished / 1000
                 if (remainingSeconds <= 1) {
@@ -838,7 +839,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
     }
     @SuppressLint("MissingPermission")
     private fun sendNotification(title: String, content: String) {
-        val channelId = "com.example.altimer.news" // Use the same channel ID you used when creating the notification channel
+        val channelId = "com.example.altimer.news"
 
         val builder = NotificationCompat.Builder(requireContext(), channelId)
             .setSmallIcon(R.drawable.notification_icon)
@@ -876,7 +877,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                 .setGroup("com.example.altimer.news")
                 .setGroupSummary(false)
 
-            val notificationId = "bundle_$index" // Unique ID for each notification
+            val notificationId = "bundle_$index"
             NotificationManagerCompat.from(requireContext()).notify(notificationId.hashCode(), notificationBuilder.build())
         }
 

@@ -98,9 +98,7 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
     }
     override fun updateTimes() {
         _binding?.let { binding ->
-            Log.d("tester", "gotupdatedfdnf")
             currentEvent = SolveManager.getCubeType(requireContext())
-            Log.d("tester", currentEvent)
 
             timesView = binding.timesView
             layoutManager = LinearLayoutManager(requireContext())
@@ -136,7 +134,7 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
     }
     override fun onDelete(scramble: String) {
         val firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
-        Log.d("vy", scramble)
+
         SolveManager.deleteSolve(requireContext(), scramble)
         updateTimes()
 

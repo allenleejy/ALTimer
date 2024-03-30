@@ -36,13 +36,13 @@ object SolveManager {
         }
         solves.add(solve)
         saveSolves(context, solves)
-        Log.d("test", getSolves(context).toMutableList().toString())
+
     }
     fun addSolve(context: Context, solve: Solve) {
         val solves = getSolves(context).toMutableList()
         solves.add(solve) // Add the new solve
         saveSolves(context, solves)
-        Log.d("test", "added" + getSolves(context).toMutableList().toString())
+
     }
     fun clearSolves(context: Context) {
         saveSolves(context, emptyList())
@@ -130,7 +130,7 @@ object SolveManager {
         saveSolves(context, solves)
     }
     fun isSinglePB(context: Context, event: String, time: Float) : Boolean {
-        Log.d("vy", time.toString())
+
         val solves = getSolves(context).toMutableList()
         var fastestSingle = 0f
         for (solve in solves) {

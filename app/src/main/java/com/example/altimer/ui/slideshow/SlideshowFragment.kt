@@ -68,7 +68,7 @@ class SlideshowFragment : Fragment() {
 
         if (SolveManager.getInspection(requireContext()) == "true") {
             inspectionSwitch.isChecked = true
-            Log.d("vy", "it is on")
+
         }
         else {
             inspectionSwitch.isChecked = false
