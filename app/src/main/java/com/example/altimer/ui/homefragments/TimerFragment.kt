@@ -2,6 +2,12 @@ package com.example.altimer.ui.homefragments
 
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
 import android.graphics.drawable.PictureDrawable
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -21,7 +27,11 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.caverock.androidsvg.SVG
@@ -78,7 +88,8 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
     private lateinit var currentEvent : String
 
     private lateinit var textToSpeech: TextToSpeech
-
+    private lateinit var shareButton : ImageButton
+    private lateinit var notificationManager: NotificationManager
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
@@ -96,6 +107,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         scrambleImage = binding.scrambleimage
         newScramble = binding.newscramble
         timerText = binding.timer
+        shareButton = binding.share
 
         plusTwo = binding.plustwo
         dnf = binding.dnf
@@ -116,7 +128,9 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         sharedEventModel = ViewModelProvider(requireActivity()).get(SharedEventModel::class.java)
         sharedEventModel.eventUpdateListener = this
 
-        //(activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        notificationManager = requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        createNotificationChannel("com.example.altimer.news", "ALTimer",
+            "Cubing Timer in Kotlin")
 
         currentEvent = SolveManager.getCubeType(requireContext())
         updateEvent()
@@ -157,6 +171,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                                 timerRunnable.resetTimer()
                                 binding.plustwo.visibility = View.INVISIBLE
                                 binding.dnf.visibility = View.INVISIBLE
+                                shareButton.visibility = View.INVISIBLE
                                 penaltyShown = false
                                 running = true
                                 downpressed = "down"
@@ -179,6 +194,9 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                                 currentSolve.penalty = currentSolvePenalty
                                 if (currentSolve.time != 0f) {
                                     SolveManager.addSolve(requireContext(), currentSolve)
+                                    if (SolveManager.isSinglePB(requireContext(), currentEvent, currentSolve.time)) {
+                                        sendNotification("New $currentEvent PB", "You got a time of ${String.format("%.2f",currentSolve.time)}!")
+                                    }
                                 }
                                 updateStats(currentEvent)
                                 updateFirst()
@@ -254,6 +272,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             updateFirst()
             updateStats(currentEvent)
             plusTwo.visibility = View.INVISIBLE
+            Toast.makeText(requireContext(), "+2 Applied", Toast.LENGTH_SHORT).show()
         }
         dnf.setOnClickListener {
             val dnfString = SpannableString("DNF")
@@ -267,7 +286,15 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             SolveManager.editLastSolve(requireContext(), currentSolve)
             updateStats(currentEvent)
             updateFirst()
+            Toast.makeText(requireContext(), "DNF Applied", Toast.LENGTH_SHORT).show()
             Log.d("tester", "update first on dnf")
+        }
+        shareButton.setOnClickListener {
+            val message = "$currentEvent\n\n${currentSolve.time}\n\n${currentSolve.scramble}"
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = "text/plain"
+            intent.putExtra(Intent.EXTRA_TEXT, message)
+            startActivity(Intent.createChooser(intent, "Send Message via:"))
         }
 
         return root
@@ -389,7 +416,8 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                 binding.meanlayout,
                 binding.countlayout,
                 binding.dnf,
-                binding.plustwo
+                binding.plustwo,
+                binding.share
             )
             for (view in viewsToFade) {
                 if (view.visibility == View.INVISIBLE) {
@@ -411,7 +439,8 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                 binding.meanlayout,
                 binding.countlayout,
                 binding.plustwo,
-                binding.dnf
+                binding.dnf,
+                binding.share
             )
 
             for (view in viewsToFade) {
@@ -458,6 +487,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             .setInterpolator(animation.interpolator)
             .setDuration(animation.duration)
             .start()
+        binding.share.animate().alpha(0.0f).setInterpolator(animation.interpolator).setDuration(animation.duration).start()
 
         isExpanded = true
     }
@@ -487,6 +517,11 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             .setDuration(animation.duration).start()
         if (penaltyShown) {
             binding.dnf.visibility = View.VISIBLE
+        }
+        binding.share.animate().alpha(1.0f).setInterpolator(animation.interpolator)
+            .setDuration(animation.duration).start()
+        if (penaltyShown) {
+            binding.share.visibility = View.VISIBLE
         }
         isExpanded = false
 
@@ -546,6 +581,16 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                     }
                     averageOfFive /= 3
                     averageFive.text = "AO5\n" + String.format("%.2f", averageOfFive)
+                    if (SolveManager.isAOFivePB(requireContext(), currentEvent, averageOfFive)) {
+                        val fivesolves = SolveManager.returnLastFiveSolves(requireContext(), currentEvent)
+                        val pairList = mutableListOf<Pair<String, String>>()
+                        var counter = 0
+                        for (solve in fivesolves) {
+                            counter++
+                            pairList.add(Pair("Solve $counter ", String.format("%.2f", solve.time)))
+                        }
+                        sendBundledNotification("New $currentEvent AO5 PB!", pairList, averageOfFive)
+                    }
                 }
                 else if (aofivelist.size < 4) {
                     averageFive.text = "AO5\n-"
@@ -558,6 +603,17 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
                     }
                     averageOfFive /= 3
                     averageFive.text = "AO5\n" + String.format("%.2f", averageOfFive)
+
+                    if (SolveManager.isAOFivePB(requireContext(), currentEvent, averageOfFive)) {
+                        val fivesolves = SolveManager.returnLastFiveSolves(requireContext(), currentEvent)
+                        val pairList = mutableListOf<Pair<String, String>>()
+                        var counter = 0
+                        for (solve in fivesolves) {
+                            counter++
+                            pairList.add(Pair("Solve $counter ", String.format("%.2f", solve.time)))
+                        }
+                        sendBundledNotification("New $currentEvent AO5 PB!", pairList, averageOfFive)
+                    }
                 }
 
             }
@@ -684,6 +740,7 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
             timerText.text = formatTime(0, 0)
             plusTwo.visibility = View.GONE
             dnf.visibility = View.GONE
+            shareButton.visibility = View.GONE
             penaltyShown = false
         }
         else {
@@ -769,4 +826,65 @@ class TimerFragment() : Fragment(), SharedUpdateModel.StatsUpdateListener, Share
         binding.inspection.startAnimation(fadeout)
         binding.inspection.visibility = View.INVISIBLE
     }
+    private fun createNotificationChannel(id: String, name: String, description: String){
+        val importance = NotificationManager.IMPORTANCE_LOW
+        val channel = NotificationChannel(id, name, importance)
+        channel.description = description
+        channel.enableLights(true)
+        channel.lightColor = Color.RED
+        channel.enableVibration(true)
+        channel.vibrationPattern = longArrayOf(100, 200, 300, 400, 500, 400, 300, 200, 400)
+        notificationManager.createNotificationChannel(channel)
+    }
+    @SuppressLint("MissingPermission")
+    private fun sendNotification(title: String, content: String) {
+        val channelId = "com.example.altimer.news" // Use the same channel ID you used when creating the notification channel
+
+        val builder = NotificationCompat.Builder(requireContext(), channelId)
+            .setSmallIcon(R.drawable.notification_icon)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        with(NotificationManagerCompat.from(requireContext())) {
+            notify("101" ,1, builder.build())
+        }
+    }
+    @SuppressLint("MissingPermission")
+    fun sendBundledNotification(bundledNotificationTitle: String, notifications: List<Pair<String, String>>, average: Float) {
+        val channelId = "com.example.altimer.news"
+        val notificationList = mutableListOf<Pair<String, String>>()
+
+        notifications.forEach { (title, content) ->
+            notificationList.add(title to content)
+        }
+        notificationList.add(bundledNotificationTitle to "Average of 5 time: ${String.format("%.2f", average)}")
+
+        val summaryBuilder = NotificationCompat.Builder(requireContext(), channelId)
+            .setSmallIcon(R.drawable.notification_icon)
+            .setContentTitle(bundledNotificationTitle)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setGroup("com.example.altimer.news")
+            .setGroupSummary(true)
+
+        notificationList.forEachIndexed { index, notification ->
+            val (title, content) = notification
+            val notificationBuilder = NotificationCompat.Builder(requireContext(), channelId)
+                .setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setGroup("com.example.altimer.news")
+                .setGroupSummary(false)
+
+            val notificationId = "bundle_$index" // Unique ID for each notification
+            NotificationManagerCompat.from(requireContext()).notify(notificationId.hashCode(), notificationBuilder.build())
+        }
+
+        NotificationManagerCompat.from(requireContext()).notify(
+            bundledNotificationTitle.hashCode(),
+            summaryBuilder.build()
+        )
+    }
+
+
 }

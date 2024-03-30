@@ -41,5 +41,9 @@
     </style>
     <style name="InspectionSwitch" parent="Widget.AppCompat.CompoundButton.Switch">
     </style>
+    <style name="AboutTheme" parent="AppTheme">
+        <item name="android:textColorPrimary">@android:color/black</item>
+    </style>
+
 
 </resources>

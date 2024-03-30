@@ -1,29 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-    android:orientation="horizontal"
-    android:paddingTop="20dp"
-    tools:context=".ui.slideshow.SlideshowFragment">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/enableInspectionText"
+    <Button
+        android:id="@+id/aboutprogrammer"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/deletedialogbackground"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:text="About The Programmer"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/clearsolves"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/deletedialogbackground"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:text="Clear Solves"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/aboutprogrammer" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingTop="20dp"
+        tools:context=".ui.slideshow.SlideshowFragment">
+
+        <TextView
+            android:id="@+id/enableInspectionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enable Inspection"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
+
+        <Switch
+            android:id="@+id/inspectionSwitch"
+            style="@style/InspectionSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="clip_vertical"
+            android:checked="false"
+            android:paddingLeft="20dp"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    </LinearLayout>
+
+    <VideoView
+        android:id="@+id/videoView"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="240dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/pipBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enable Inspection"
-        android:textColor="@color/black"
-        android:textSize="20sp" />
-
-    <Switch
-        android:id="@+id/inspectionSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="clip_vertical"
-        android:checked="false"
-        android:paddingLeft="20dp"
-        style = "@style/InspectionSwitch"
-        tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-</LinearLayout>
+        android:layout_marginTop="30dp"
+        android:background="@drawable/deletedialogbackground"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:text="Enter PIP"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/videoView" />
+</androidx.constraintlayout.widget.ConstraintLayout>

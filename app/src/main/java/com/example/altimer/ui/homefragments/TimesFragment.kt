@@ -1,5 +1,6 @@
 package com.example.altimer.ui.homefragments
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ import com.example.altimer.adapters.TimesAdapter
 import com.example.altimer.databinding.FragmentTimesBinding
 import com.example.altimer.ui.gallery.GalleryViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 
 class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAdapter.TimesButtonClickListener{
 
@@ -110,9 +112,9 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         }
     }
 
-    override fun onDNFButtonClicked(position: Int) {
+    override fun onDNFButtonClicked(position: Int, event: String) {
         val firstPosition = layoutManager.findFirstVisibleItemPosition()
-        SolveManager.makeDNF(requireContext(), position)
+        SolveManager.makeDNF(requireContext(), position, event)
         updateTimes()
         timesView.scrollToPosition(firstPosition)
         sharedUpdateModel.statsUpdateListener?.updateStatistics()
@@ -132,10 +134,10 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
         timesView.scrollToPosition(firstPosition)
         sharedUpdateModel.statsUpdateListener?.updateStatistics()
     }
-    override fun onDelete(position: Int) {
+    override fun onDelete(scramble: String) {
         val firstPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
-
-        SolveManager.deleteSolve(requireContext(), position)
+        Log.d("vy", scramble)
+        SolveManager.deleteSolve(requireContext(), scramble)
         updateTimes()
 
         if (timesView.computeVerticalScrollRange() <= timesView.height) {
@@ -148,6 +150,9 @@ class TimesFragment : Fragment(), SharedTimesModel.TimesUpdateListener, TimesAda
 
         timesView.scrollToPosition(firstPosition)
         sharedUpdateModel.statsUpdateListener?.updateStatistics()
+        val snackbar = Snackbar.make(requireView(), "Solve Deleted", Snackbar.LENGTH_SHORT)
+        snackbar.view.setBackgroundColor(Color.parseColor("#FFFEE773"))
+        snackbar.show()
     }
 
 }

@@ -29,22 +29,23 @@ import org.worldcubeassociation.tnoodle.puzzle.TwoByTwoCubePuzzle
 import java.nio.InvalidMarkException
 
 class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private val dnfButtonClickListener: TimesButtonClickListener) : RecyclerView.Adapter<TimesAdapter.ViewHolder>() {
-
+    private lateinit var currentEvent : String
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v : View = LayoutInflater.from(parent.context).inflate(R.layout.times_layout,parent,false)
+        currentEvent = SolveManager.getCubeType(context)
         return ViewHolder(v)
     }
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: TimesAdapter.ViewHolder, position: Int) {
         holder.bindItems(slvList[position])
         holder.statDNF.setOnClickListener {
-            dnfButtonClickListener.onDNFButtonClicked(slvList.size - position - 1)
+            dnfButtonClickListener.onDNFButtonClicked(slvList.size - position, currentEvent)
             holder.statOkay.visibility = View.VISIBLE
-            holder.statDNF.visibility = View.GONE
+            holder.statDNF.visibility = View.INVISIBLE
             holder.statPlusTwo.visibility = View.GONE
         }
         holder.statDelete.setOnClickListener {
-            showDeleteConfirmationDialog(slvList.size - position - 1)
+            showDeleteConfirmationDialog(slvList[position].scramble)
         }
         holder.statOkay.setOnClickListener {
             Log.d("testing", position.toString())
@@ -127,19 +128,19 @@ class TimesAdapter(val context: Context, val slvList: ArrayList<Solve>, private 
         }
     }
     interface TimesButtonClickListener {
-        fun onDNFButtonClicked(position: Int)
-        fun onDelete(position: Int)
+        fun onDNFButtonClicked(position: Int, event: String)
+        fun onDelete(scramble: String)
         fun onOkayPressed(scramble: String)
         fun onPlusTwoPressed(scramble: String)
     }
-    private fun showDeleteConfirmationDialog(position: Int) {
+    private fun showDeleteConfirmationDialog(scramble: String) {
         val alertDialogBuilder = AlertDialog.Builder(context, R.style.DeleteDialogStyle)
         val title = "<b>Confirm Deletion</b>"
         alertDialogBuilder.setTitle(Html.fromHtml(title))
         alertDialogBuilder.setMessage("Are you sure you want to delete this solve?")
         alertDialogBuilder.setPositiveButton(Html.fromHtml("<font color='#FF0000'>Delete</font>")) { dialogInterface: DialogInterface, _: Int ->
             dialogInterface.dismiss()
-            dnfButtonClickListener.onDelete(position)
+            dnfButtonClickListener.onDelete(scramble)
         }
         alertDialogBuilder.setNegativeButton("Cancel") { dialogInterface: DialogInterface, _: Int ->
             dialogInterface.dismiss()

@@ -3,6 +3,7 @@ package com.example.altimer
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import android.view.textclassifier.TextClassifierEvent
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -46,14 +47,29 @@ object SolveManager {
     fun clearSolves(context: Context) {
         saveSolves(context, emptyList())
     }
-    fun makeDNF(context: Context, position: Int) {
+    fun makeDNF(context: Context, position: Int, event:String) {
         val solves = getSolves(context).toMutableList()
-        solves.get(position).penalty = "DNF"
+        var pos = 0
+        for (solve in solves) {
+            if (solve.event == event) {
+                pos++
+            }
+            if (pos == position) {
+                solve.penalty = "DNF"
+            }
+        }
         saveSolves(context, solves)
     }
-    fun deleteSolve(context: Context, position: Int) {
+    fun deleteSolve(context: Context, scramble: String) {
         val solves = getSolves(context).toMutableList()
-        solves.removeAt(position)
+        var index = 0; var deleteindex = 0
+        for (solve in solves) {
+            index++
+            if (solve.scramble == scramble) {
+                deleteindex = index - 1
+            }
+        }
+        solves.removeAt(deleteindex)
         saveSolves(context, solves)
     }
     fun eventHasSolve(context: Context, event: String) : Boolean {
@@ -113,6 +129,49 @@ object SolveManager {
         }
         saveSolves(context, solves)
     }
+    fun isSinglePB(context: Context, event: String, time: Float) : Boolean {
+        Log.d("vy", time.toString())
+        val solves = getSolves(context).toMutableList()
+        var fastestSingle = 0f
+        for (solve in solves) {
+            if (solve.event == event) {
+                if (fastestSingle == 0f) {
+                    fastestSingle = solve.time
+                }
+                else {
+                    if (solve.time < fastestSingle) {
+                        fastestSingle = solve.time
+                    }
+                }
+            }
+        }
+        return fastestSingle == time
+    }
+    fun returnLastFiveSolves(context: Context, event: String) : ArrayList<Solve> {
+        val solves = getSolveFromEvent(context, event).toMutableList(); val solvearray = ArrayList<Solve>()
+        solves.takeLast(5)
+        for (solve in solves) {
+            solvearray.add(solve)
+        }
+        return solvearray
+    }
+    fun isAOFivePB(context: Context, event: String, average: Float): Boolean {
+        var firstindex = 0; var lastindex = 5; var fastestaverage = 0f
+        var solves = getSolveFromEvent(context, event).toMutableList()
+        for (i in 1..solves.size - lastindex + 1) {
+            val relevantSolves = solves.subList(firstindex, lastindex)
+            val thataverage = calculateAverageOfFive(relevantSolves)
+            if (fastestaverage == 0f) {
+                fastestaverage = thataverage
+            }
+            else {
+                if (thataverage < fastestaverage) {
+                    fastestaverage = thataverage
+                }
+            }
+        }
+        return average == fastestaverage
+    }
     fun saveCubeType(context: Context, cubeType: String) {
         val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -152,5 +211,45 @@ object SolveManager {
     fun getInspection(context: Context): String {
         val sharedPreferences: SharedPreferences = context.getSharedPreferences("MySolves", Context.MODE_PRIVATE)
         return sharedPreferences.getString(INSP_TYPE_KEY, "") ?: ""
+    }
+    fun calculateAverageOfFive(solves: List<Solve>) : Float {
+        var averageOfFive = 0f; var eventSolves = ArrayList<Solve>()
+        var shortest = 0f; var aofivelist = ArrayList<Float>()
+        var longest = 0f
+
+        for (solve in solves) {
+            eventSolves.add(solve)
+        }
+        for (i in eventSolves.size - 5 until eventSolves.size) {
+            if (eventSolves.get(i).penalty != "DNF") {
+                aofivelist.add(eventSolves.get(i).time)
+                if (shortest == 0f) {
+                    shortest = eventSolves.get(i).time
+                    longest = eventSolves.get(i).time
+                }
+                if (eventSolves.get(i).time < shortest) {
+                    shortest = eventSolves.get(i).time
+                }
+                if (eventSolves.get(i).time > longest) {
+                    longest = eventSolves.get(i).time
+                }
+            }
+        }
+        if (aofivelist.size == 4) {
+            aofivelist.remove(shortest)
+            for (time in aofivelist) {
+                averageOfFive += time
+            }
+            averageOfFive /= 3
+        }
+        else {
+            aofivelist.remove(shortest)
+            aofivelist.remove(longest)
+            for (time in aofivelist) {
+                averageOfFive += time
+            }
+            averageOfFive /= 3
+        }
+        return averageOfFive
     }
 }
