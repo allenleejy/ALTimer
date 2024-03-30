@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestNotificationPermission()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -114,6 +113,7 @@ class MainActivity : AppCompatActivity() {
             initaliseOnboarding()
             initaliseSharedPreferences()
             OnboardingManager.saveOnboardingState(this, "false")
+
         }
         else {
             drawerLayout.visibility = View.VISIBLE
@@ -300,8 +300,8 @@ class MainActivity : AppCompatActivity() {
             override fun onAnimationEnd(animation: Animation?) {
                 onboarding.visibility = View.GONE
                 Log.d("vy", "it tried")
-                //Thread.sleep(100)
                 fadeInLayout()
+                requestNotificationPermission()
             }
 
             override fun onAnimationRepeat(animation: Animation?) {

@@ -28,7 +28,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".AboutProgrammerActivity"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AboutTheme">
         </activity>
         <meta-data
             android:name="preloaded_fonts"
